@@ -6,10 +6,25 @@
   "modules-left": ["hyprland/workspaces"],
   "modules-center": ["clock"],
   "modules-right": ["pulseaudio", "network", "battery", "tray", "custom/notifications", "custom/power"],
-  "clock": {"format": "{:%H:%M}", "tooltip-format": "{:%d/%m/%Y}"},
-  "pulseaudio": {"format": "VOL {volume}%", "format-muted": "MUDO", "on-click": "pavucontrol"},
-  "network": {"format-wifi": "{essid}", "format-ethernet": "Cabo", "format-disconnected": "Sem rede", "on-click": "systemctl is-active --quiet NetworkManager && nm-connection-editor"},
-  "battery": {"format": "BAT {capacity}%", "format-charging": "AC {capacity}%"},
+  "clock": {
+    "format": "{:%H:%M}",
+    "tooltip-format": "{:%d/%m/%y}"
+  },
+  "pulseaudio": {
+    "format": "  {volume}%",
+    "format-muted": "mudo",
+    "on-click": "pavucontrol"
+  },
+  "network": {
+    "format-wifi": "{essid}",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "sem rede",
+    "on-click": "systemctl is-active --quiet NetworkManager && nm-connection-editor"
+  },
+  "battery": {
+    "format": "bat {capacity}%",
+    "format-charging": "ac {capacity}%"
+  },
   "custom/notifications": {
     "exec": "swaync-client --subscribe-waybar",
     "return-type": "json",
@@ -17,5 +32,8 @@
     "on-click": "swaync-client --toggle-panel",
     "escape": true
   },
-  "custom/power": {"format": "⏻", "on-click": "bash \"${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/power-menu.sh\""}
+  "custom/power": {
+    "format": "⏻",
+    "on-click": "bash \"${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/power-menu.sh\""
+  }
 }
