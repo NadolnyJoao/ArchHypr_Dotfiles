@@ -26,6 +26,7 @@ brightnessctl
 hyprsunset
 sddm
 kitty
+fish
 firefox
 discord
 obsidian
