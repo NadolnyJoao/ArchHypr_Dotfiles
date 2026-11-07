@@ -59,7 +59,11 @@ install_astronaut() (
         return 1
     fi
     published_stage=
-    sudo -n install -m 644 -- "$work/sddm.conf" "$config"
+    sudo -n install -m 644 -- "$work/sddm.conf" "$config" || return 1
+    # sddm.conf tem precedência sobre todos os drop-ins. Não anuncie sucesso
+    # se outra configuração selecionar um tema ou diretório diferente.
+    python "$project_dir/lib/check-sddm.py" /usr/lib/sddm/sddm.conf.d \
+        /etc/sddm.conf.d /etc/sddm.conf "${target%/*}"
 )
 
 enable_rice_sddm() {

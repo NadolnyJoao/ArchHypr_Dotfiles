@@ -16,11 +16,12 @@ root = Path(sys.argv[1])
 if __import__("os").geteuid() == 0:
     entry = root / "project/install.sh"
     entry.write_text(entry.read_text().replace("if (( EUID == 0 )) ||", "if false ||"))
-p = root / "project/lib/sddm.sh"
-text = p.read_text()
-for path in ("/usr/share/sddm", "/usr/share/fonts", "/etc/sddm.conf.d"):
-    text = text.replace(path, str(root / "system") + path)
-p.write_text(text)
+for relative in ("lib/sddm.sh", "lib/check-sddm.py"):
+    p = root / "project" / relative
+    text = p.read_text()
+    for path in ("/usr/share/sddm", "/usr/share/fonts", "/usr/lib/sddm", "/etc/sddm"):
+        text = text.replace(path, str(root / "system") + path)
+    p.write_text(text)
 for name in ("sudo", "pacman", "vercmp", "git", "systemctl", "gsettings", "xdg-settings",
              "xdg-mime", "xfconf-query", "flatpak", "update-desktop-database"):
     (root / "bin" / name).symlink_to(root / "project/tests/mocks/command.py")
@@ -79,3 +80,25 @@ grep -Eq '^FALHOU[[:space:]]+pacote-rofi[[:space:]]' "$report"
 grep -Eq '^PULADO[[:space:]]+hyprland-config[[:space:]]' "$report"
 grep -Eq '^(OK|JA_PRONTO)[[:space:]]+neovim-associacoes[[:space:]]' "$report"
 grep -Eq '^PULADO[[:space:]]+sddm-servico[[:space:]]' "$report"
+
+# Falhas em componentes chamados pela sessão não podem publicar uma entrada nova.
+for failure in hyprpaper hyprlock grim; do
+    rm -rf -- "$temp/home" "$temp/system"
+    mkdir -p "$temp/home/.config/hypr"
+    printf 'configuração anterior\n' > "$temp/home/.config/hypr/hyprland.lua"
+    run_installer 1 "$failure"
+    report=$(find "$temp/home/.local/state" -name resumo.tsv -print -quit)
+    grep -Eq '^PULADO[[:space:]]+hyprland-config[[:space:]]' "$report"
+    grep -Eq '^PULADO[[:space:]]+sddm-servico[[:space:]]' "$report"
+    grep -Fxq 'configuração anterior' "$temp/home/.config/hypr/hyprland.lua"
+done
+
+# O arquivo legado tem prioridade sobre nosso drop-in: detectar conflito.
+rm -rf -- "$temp/home" "$temp/system"
+mkdir -p "$temp/home" "$temp/system/etc"
+printf '[Theme]\nCurrent=outro-tema\n' > "$temp/system/etc/sddm.conf"
+run_installer 1 ''
+report=$(find "$temp/home/.local/state" -name resumo.tsv -print -quit)
+grep -Eq '^FALHOU[[:space:]]+sddm-tema[[:space:]]' "$report"
+grep -Eq '^PULADO[[:space:]]+sddm-servico[[:space:]]' "$report"
+grep -Fxq 'Current=outro-tema' "$temp/system/etc/sddm.conf"

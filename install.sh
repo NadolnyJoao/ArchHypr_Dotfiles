@@ -78,8 +78,6 @@ for package in "${neovim_packages[@]}"; do
 done
 run_step neovim-config "${neovim_dependencies[*]}" install_neovim_config "$neovim_url" "$config_dir/nvim"
 
-run_step hypridle-config 'pacote-hypridle' install_hyprland_dotfiles "$config_dir" \
-    hypr/scripts/idle-brightness.sh hypr/hypridle.conf
 run_step hyprsunset-config 'pacote-hyprsunset' install_hyprland_dotfiles "$config_dir" \
     hypr/hyprsunset.conf
 run_step desktop-config 'hyprland-versao pacote-waybar pacote-rofi pacote-swaync pacote-kitty pacote-fish' install_desktop_dotfiles "$config_dir"
@@ -87,12 +85,15 @@ run_step wallpaper-pack 'pacote-git' install_wallpaper_pack "$wallpaper_url" "$w
 run_step wallpaper-config 'pacote-hyprpaper wallpaper-pack' install_hyprland_dotfiles "$config_dir" \
     hypr/scripts/wallpaper.sh hypr/hyprpaper.conf
 run_step lock-config 'pacote-hyprlock desktop-config' install_hyprland_dotfiles "$config_dir" hypr/scripts/lock.sh
+run_step hypridle-config 'pacote-hypridle lock-config' install_hyprland_dotfiles "$config_dir" \
+    hypr/scripts/idle-brightness.sh hypr/hypridle.conf
 run_step thinkpad-config 'pacote-python pacote-libxkbcommon' install_hyprland_dotfiles "$config_dir" \
     hypr/scripts/thinkpad-remap.sh hypr/scripts/remap-keymap.py
-run_step hyprland-config 'hyprland-versao desktop-config pacote-kitty pacote-fish pacote-rofi' install_hyprland_dotfiles "$config_dir" \
+# Só publique a entrada da sessão quando seus scripts e comandos estiverem prontos.
+run_step hyprland-config 'hyprland-versao desktop-config wallpaper-config lock-config hypridle-config hyprsunset-config pacote-thunar pacote-grim pacote-slurp pacote-wl-clipboard pacote-libnotify pacote-brightnessctl pacote-wireplumber pacote-xdg-utils pacote-gtk3' install_hyprland_dotfiles "$config_dir" \
     hypr/modules/appearance.lua hypr/modules/bindings.lua hypr/modules/session.lua hypr/modules/input.lua hypr/hyprland.lua
 
-run_step sddm-tema 'pacote-sddm pacote-qt6-svg pacote-qt6-virtualkeyboard pacote-qt6-multimedia-ffmpeg pacote-xorg-server wallpaper-pack' \
+run_step sddm-tema 'pacote-python pacote-sddm pacote-qt6-svg pacote-qt6-virtualkeyboard pacote-qt6-multimedia-ffmpeg pacote-xorg-server wallpaper-pack' \
     install_astronaut "$wallpaper_dir/wallpapers/613342.jpg"
 run_step sddm-servico 'sddm-tema hyprland-config' enable_rice_sddm
 

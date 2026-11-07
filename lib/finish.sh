@@ -84,6 +84,10 @@ finish_interactive() {
     esac
 
     printf '\nRelatório: %s/resumo.tsv\n' "$report_dir"
+    if (( failed_steps > 0 || skipped_steps > 0 )); then
+        printf 'Instalação incompleta. Resolva as falhas/etapas puladas antes de reiniciar.\n'
+        return 0
+    fi
     read -r -p 'Reiniciar agora? [s/N] ' answer || return 0
     case "$answer" in
         s|S|sim|Sim|SIM)
