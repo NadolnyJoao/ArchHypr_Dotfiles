@@ -13,3 +13,4 @@ wl-clipboard
 ninja
 python-pip
 python-virtualenv
+lazygit

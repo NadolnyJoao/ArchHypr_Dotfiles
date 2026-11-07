@@ -5,5 +5,5 @@ Comment=Editar código no Neovim
 Exec=kitty nvim -- %F
 Icon=nvim
 Terminal=false
-Categories=Utility;TextEditor;Development;
+Categories=Development;TextEditor;
 MimeType=text/x-lua;text/x-csrc;text/x-chdr;text/x-c++src;text/x-c++hdr;text/x-python;application/x-shellscript;text/plain;

@@ -1,2 +1,3 @@
 dotfiles/hypr/modules/monitors.local.lua
 __pycache__/
+.audit/

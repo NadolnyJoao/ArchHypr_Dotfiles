@@ -6,6 +6,7 @@ install_neovim_config() {
     if [[ -d $destination/.git && ! -L $destination ]]; then
         origin=$(git -C "$destination" remote get-url origin 2>/dev/null) || origin=
         if [[ $origin == "$url" && -f $destination/init.lua ]]; then
+            git -C "$destination" rev-parse HEAD || return 1
             return 10
         fi
     fi
@@ -18,6 +19,7 @@ install_neovim_config() {
         return 1
     fi
 
+    git -C "$staging" rev-parse HEAD || { rm -rf -- "$staging"; return 1; }
     if [[ -e $destination || -L $destination ]]; then
         if ! mkdir -p -- "$(dirname -- "$backup")" || [[ -e $backup || -L $backup ]] ||
             ! mv -T -- "$destination" "$backup"; then
