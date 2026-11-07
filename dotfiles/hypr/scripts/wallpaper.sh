@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+config=${XDG_CONFIG_HOME:-$HOME/.config}/hypr
 pack=${XDG_DATA_HOME:-$HOME/.local/share}/rice-arch/Wallpapers_Pack/wallpapers
 runtime=${XDG_RUNTIME_DIR:?}/rice-wallpaper-${HYPRLAND_INSTANCE_SIGNATURE:?}
 interval=${RICE_WALLPAPER_INTERVAL:-3600}
@@ -7,19 +8,34 @@ interval=${RICE_WALLPAPER_INTERVAL:-3600}
 mkdir -p -m 700 -- "$runtime"
 
 rotate() (
-  local image previous='' candidate reply active attempt
-  local queue="$runtime/queue"
+  local image previous='' candidate reply active attempt theme=nord source queue
+  # Serializa a leitura do tema com a publicação da paleta.
+  exec 7>"$config/.theme.lock"
+  flock -s 7 || return 1
   local -a remaining=()
   local -a images=()
   exec 8>"$runtime/update.lock"
   flock 8 || return 1
+  if [[ -f $config/current-theme ]]; then
+    read -r theme <"$config/current-theme" || theme=nord
+  fi
+  case $theme in nord|gruvbox|catppuccin|solitude) ;; *) theme=nord ;; esac
+  queue="$runtime/queue-$theme"
+  source="$pack/$theme"
+  if [[ -d $source ]]; then
+    mapfile -d '' -t images < <(
+      find "$source" -maxdepth 1 -type f \
+        \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -print0
+    )
+  fi
+  if ((${#images[@]} == 0)); then source=$pack; fi
   if [[ -f $runtime/current ]]; then read -r previous <"$runtime/current"; fi
   # Todos os caminhos são separados por NUL para preservar espaços e Unicode.
   # A fila só é refeita quando acaba. Arquivos removidos são descartados.
   if [[ -s $queue ]]; then
     mapfile -d '' -t images <"$queue"
     for image in "${images[@]}"; do
-      [[ ! -f $image ]] || remaining+=("$image")
+      [[ -f $image && ${image%/*} == "$source" ]] && remaining+=("$image")
     done
   fi
   if ((${#remaining[@]} == 0)); then
@@ -28,7 +44,7 @@ rotate() (
       return 1
     }
     mapfile -d '' -t images < <(
-      find "$pack" -type f \
+      find "$source" -maxdepth 1 -type f \
         \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -print0 |
         shuf -z
     )

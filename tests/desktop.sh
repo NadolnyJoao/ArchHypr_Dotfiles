@@ -14,7 +14,7 @@ run_step desktop '' install_desktop_dotfiles "$XDG_CONFIG_HOME"
 [[ ${step_status[desktop]} == OK ]]
 [[ $(cat "$report_dir/backup/kitty/colors.conf") == anterior ]]
 theme_script="$XDG_CONFIG_HOME/hypr/scripts/theme.sh"
-for palette in nord gruvbox catppuccin; do
+for palette in nord gruvbox catppuccin solitude; do
     bash "$theme_script" "$palette" --offline
     read -r base text accent < "$XDG_CONFIG_HOME/hypr/themes/$palette"
     grep -q "#$base" "$XDG_CONFIG_HOME/waybar/colors.css"
@@ -29,4 +29,4 @@ done
 if bash "$theme_script" desconhecido --offline; then exit 1; fi
 run_step reexecucao '' install_desktop_dotfiles "$XDG_CONFIG_HOME"
 [[ ${step_status[reexecucao]} == JA_PRONTO ]]
-[[ $(cat "$XDG_CONFIG_HOME/hypr/current-theme") == catppuccin ]]
+[[ $(cat "$XDG_CONFIG_HOME/hypr/current-theme") == solitude ]]

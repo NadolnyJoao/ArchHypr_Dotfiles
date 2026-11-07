@@ -10,7 +10,7 @@ work=$(mktemp -d "$runtime/lock.XXXXXXXX")
 trap 'rm -rf -- "$work"' EXIT
 theme=nord
 if [[ -f $config/current-theme ]]; then read -r theme < "$config/current-theme" || theme=nord; fi
-case "$theme" in nord|gruvbox|catppuccin) ;; *) theme=nord ;; esac
+case "$theme" in nord|gruvbox|catppuccin|solitude) ;; *) theme=nord ;; esac
 read -r base text accent < "$config/themes/$theme"
 for color in "$base" "$text" "$accent"; do [[ $color =~ ^[[:xdigit:]]{6}$ ]] || exit 1; done
 

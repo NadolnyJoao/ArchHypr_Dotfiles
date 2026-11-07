@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Seleciona um tema GTK3 pelo GSettings da sessão Wayland.
 set -euo pipefail
-case "${1:-}" in nord|gruvbox|catppuccin) theme=$1 ;; *) exit 2 ;; esac
+case "${1:-}" in nord|gruvbox|catppuccin|solitude) theme=$1 ;; *) exit 2 ;; esac
 config=${XDG_CONFIG_HOME:-$HOME/.config}
 data=${XDG_DATA_HOME:-$HOME/.local/share}
 
@@ -11,6 +11,7 @@ case "$theme" in
     nord) ready_theme=Nordic; folder_color=nordic ;;
     gruvbox) folder_color=palebrown ;;
     catppuccin) folder_color=violet ;;
+    solitude) folder_color=grey ;;
 esac
 
 # Os ícones coloridos são links para o Papirus instalado pelo pacman.

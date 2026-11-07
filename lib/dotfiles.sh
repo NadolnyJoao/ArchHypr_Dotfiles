@@ -19,7 +19,7 @@ install_desktop_dotfiles() {
     local root=$1 result changed=10 theme=nord
     mkdir -p -- "$root/hypr/modules" || return 1
     if install_hyprland_dotfiles "$root" \
-        hypr/themes/nord hypr/themes/gruvbox hypr/themes/catppuccin \
+        hypr/themes/nord hypr/themes/gruvbox hypr/themes/catppuccin hypr/themes/solitude \
         hypr/scripts/theme.sh hypr/scripts/power-menu.sh \
         hypr/scripts/gtk-theme.sh \
         fish/conf.d/rice-arch.fish \

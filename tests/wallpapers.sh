@@ -3,10 +3,11 @@ set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 temp=$(mktemp -d)
 trap 'rm -rf -- "$temp"' EXIT
-export XDG_DATA_HOME="$temp/data" XDG_RUNTIME_DIR="$temp/runtime" XDG_CONFIG_HOME="$PWD/dotfiles"
+export XDG_DATA_HOME="$temp/data" XDG_RUNTIME_DIR="$temp/runtime" XDG_CONFIG_HOME="$temp/config"
 export HYPRLAND_INSTANCE_SIGNATURE=test TEST_DIR="$temp" PATH="$temp/bin:$PATH"
 pack="$XDG_DATA_HOME/rice-arch/Wallpapers_Pack/wallpapers"
-mkdir -p "$pack" "$XDG_RUNTIME_DIR" "$temp/bin"
+mkdir -p "$pack" "$XDG_RUNTIME_DIR" "$temp/bin" "$XDG_CONFIG_HOME"
+cp -r dotfiles/. "$XDG_CONFIG_HOME/"
 printf 'imagem simulada\n' > "$pack/teste, cenário.png"
 cat > "$temp/bin/hyprctl" <<'MOCK'
 #!/usr/bin/env bash
@@ -37,3 +38,85 @@ bash "$wallpaper" once
 rm -- "$runtime/current"
 bash dotfiles/hypr/scripts/lock.sh
 ! grep -q 'path = ' "$temp/lock.conf"
+
+# Cada tema mantém sua posição; nenhum subdiretório de outro tema entra no fallback.
+for theme in nord gruvbox catppuccin solitude; do
+    mkdir -p "$pack/$theme"
+    for index in 1 2 3; do
+        printf '%s-%s\n' "$theme" "$index" > "$pack/$theme/$index.jpg"
+    done
+done
+printf 'nord\n' > "$XDG_CONFIG_HOME/hypr/current-theme"
+bash "$wallpaper" next
+read -r current < "$runtime/current"
+cp "$current" "$temp/nord-first"
+[[ $(cat "$current") == nord-* ]]
+[[ $(tr -cd '\0' < "$runtime/queue-nord" | wc -c) == 2 ]]
+cp "$runtime/queue-nord" "$temp/nord-queue"
+printf 'gruvbox\n' > "$XDG_CONFIG_HOME/hypr/current-theme"
+bash "$wallpaper" next
+cmp "$runtime/queue-nord" "$temp/nord-queue"
+printf 'nord\n' > "$XDG_CONFIG_HOME/hypr/current-theme"
+mapfile -d '' -t expected < "$runtime/queue-nord"
+bash "$wallpaper" next
+read -r current < "$runtime/current"
+cmp "$current" "${expected[0]}"
+! cmp -s "$current" "$temp/nord-first"
+cp "$runtime/queue-nord" "$temp/before-failure"
+if FAIL_WALLPAPER=1 bash "$wallpaper" next; then exit 1; fi
+cmp "$runtime/queue-nord" "$temp/before-failure"
+
+# A troca pelo Rofi aplica e avança a mesma fila (sem efeitos na sessão real).
+cat > "$temp/bin/rofi" <<'MOCK'
+#!/usr/bin/env bash
+cat >/dev/null
+printf 'catppuccin\n'
+MOCK
+cat > "$temp/bin/pgrep" <<'MOCK'
+#!/usr/bin/env bash
+exit 1
+MOCK
+cat > "$XDG_CONFIG_HOME/hypr/scripts/gtk-theme.sh" <<'MOCK'
+#!/usr/bin/env bash
+exit 0
+MOCK
+sed -i '/\[\[ $1 == hyprpaper/i [[ $1 == reload ]] && exit 0' "$temp/bin/hyprctl"
+chmod +x "$temp/bin/rofi" "$temp/bin/pgrep"
+bash "$XDG_CONFIG_HOME/hypr/scripts/theme.sh" menu
+read -r current < "$runtime/current"
+[[ $(cat "$current") == catppuccin-* ]]
+mapfile -d '' -t expected < "$runtime/queue-catppuccin"
+bash "$wallpaper" next
+read -r current < "$runtime/current"
+cmp "$current" "${expected[0]}"
+
+# Pasta vazia ou ausente usa somente a raiz, inclusive ao invalidar uma fila antiga.
+rm -- "$pack/solitude/"*.jpg
+for theme in solitude gruvbox; do
+    if [[ $theme == gruvbox ]]; then mv "$pack/gruvbox" "$pack/fora"; fi
+    printf '%s\n' "$theme" > "$XDG_CONFIG_HOME/hypr/current-theme"
+    bash "$wallpaper" next
+    read -r current < "$runtime/current"
+    cmp "$current" "$pack/teste, cenário.png"
+done
+# Uma pasta que passa a ter imagens substitui o fallback imediatamente.
+printf 'solitude nova\n' > "$pack/solitude/nova.jpg"
+printf 'solitude\n' > "$XDG_CONFIG_HOME/hypr/current-theme"
+bash "$wallpaper" next
+read -r current < "$runtime/current"
+cmp "$current" "$pack/solitude/nova.jpg"
+
+# O processo automático usa a mesma fila e mantém o intervalo padrão de uma hora.
+cat > "$temp/bin/sleep" <<'MOCK'
+#!/usr/bin/env bash
+printf '%s\n' "$1" > "$TEST_DIR/interval"
+exit 1
+MOCK
+chmod +x "$temp/bin/sleep"
+printf 'catppuccin\n' > "$XDG_CONFIG_HOME/hypr/current-theme"
+mapfile -d '' -t expected < "$runtime/queue-catppuccin"
+env -u RICE_WALLPAPER_INTERVAL bash "$wallpaper" loop
+read -r current < "$runtime/current"
+cmp "$current" "${expected[0]}"
+[[ $(cat "$temp/interval") == 3600 ]]
+[[ ! -s $runtime/queue-catppuccin ]]

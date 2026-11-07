@@ -3,9 +3,9 @@ set -euo pipefail
 config=${XDG_CONFIG_HOME:-$HOME/.config}
 theme=${1:-}
 if [[ $theme == menu ]]; then
-    theme=$(printf '%s\n' nord gruvbox catppuccin | rofi -dmenu -i -no-custom -p Tema) || exit 0
+    theme=$(printf '%s\n' nord gruvbox catppuccin solitude | rofi -dmenu -i -no-custom -p Tema) || exit 0
 fi
-case $theme in nord|gruvbox|catppuccin) ;; *) exit 2 ;; esac
+case $theme in nord|gruvbox|catppuccin|solitude) ;; *) exit 2 ;; esac
 
 read -r base text accent < "$config/hypr/themes/$theme"
 for color in "$base" "$text" "$accent"; do
@@ -60,6 +60,11 @@ printf '%s\n' "$theme" | write_colors "$config/hypr/current-theme"
 if [[ ${2:-} != --offline ]]; then
     if ! bash "$config/hypr/scripts/gtk-theme.sh" "$theme"; then
         printf "Não foi possível aplicar o tema GTK.\n" >&2
+    fi
+    # Libera a paleta antes de pedir à rotação que leia o tema publicado.
+    flock -u 9
+    if ! bash "$config/hypr/scripts/wallpaper.sh" next; then
+        printf 'Não foi possível aplicar o wallpaper do tema.\n' >&2
     fi
     hyprctl reload
     if pgrep -u "$UID" -x swaync >/dev/null; then swaync-client --reload-css; fi

@@ -48,7 +48,7 @@ Leia o relatório antes de aceitar o reinício. O padrão do prompt é **não**.
 |---|---|
 | Hyprland | Lua em módulos, margens de 6/12, wobble, transparência e desfoque |
 | Waybar | Três blocos arredondados, workspaces, relógio, áudio, rede, bateria, bandeja, notificações e energia |
-| Rofi | Launcher e seletor dos temas Nord, Gruvbox pastel e Catppuccin Mocha |
+| Rofi | Launcher e seletor dos temas Nord, Gruvbox pastel, Catppuccin Mocha e Solitude |
 | Kitty | Janela flutuante centralizada, abas arredondadas, Fish e fundo translúcido |
 | Thunar | Miniaturas, temas GTK e pastas Papirus que acompanham a paleta |
 | Neovim | Clone do Neovim-IDE e associação dos arquivos de código ao Neovim dentro do Kitty |
@@ -62,7 +62,7 @@ Leia o relatório antes de aceitar o reinício. O padrão do prompt é **não**.
 | Integração | Agente Polkit iniciado com a sessão, portais GTK/Hyprland e áudio PipeWire |
 | Programas | Firefox padrão, Discord, Obsidian, OpenCode, CMake, Flatpak e YTMDesktop |
 
-A instalação inclui o Nordic via HTTPS. Gruvbox e Catppuccin usam temas GTK gerados pelas mesmas paletas do rice. A preferência `prefer-dark` é aplicada no login e na troca de tema. Temas escolhidos dentro dos próprios aplicativos podem sobrepor a preferência do sistema.
+A instalação inclui o Nordic via HTTPS. Gruvbox, Catppuccin e Solitude usam temas GTK gerados pelas mesmas paletas do rice. A preferência `prefer-dark` é aplicada no login e na troca de tema. Temas escolhidos dentro dos próprios aplicativos podem sobrepor a preferência do sistema.
 
 Os plugins e ferramentas do Neovim são baixados na primeira abertura. Para C/C++, o projeto prepara GCC, Make, CMake, Ninja e as dependências de instalação de ferramentas do Mason. Outras linguagens podem exigir runtimes adicionais.
 
@@ -91,7 +91,7 @@ Os plugins e ferramentas do Neovim são baixados na primeira abertura. Para C/C+
 
 Na máquina usada para desenvolver este rice, Super + Shift + Espaço funciona com o **Shift direito**. O atalho aceita ambos os Shifts, mas certas combinações podem depender do teclado.
 
-A fila de wallpapers recomeça em cada login. Novos arquivos entram no próximo embaralhamento. O menu de energia pede confirmação para sair, reiniciar e desligar. O botão de rede abre o gerenciador quando o NetworkManager já está ativo. O instalador preserva o serviço de rede existente.
+O menu de energia pede confirmação para sair, reiniciar e desligar. O botão de rede abre o gerenciador quando o NetworkManager já está ativo. O instalador preserva o serviço de rede existente.
 
 ## Pastas e personalização
 
@@ -109,6 +109,34 @@ Os caminhos abaixo assumem as variáveis XDG padrão.
 | `~/.local/state/rice-arch/instalacao.*` | Relatórios e backups |
 
 Edite o arquivo correspondente em `dotfiles/` para levar uma mudança às próximas instalações. O instalador faz backup dos dotfiles que substituir. Ele preserva um clone existente do Neovim-IDE com a mesma URL, incluindo as suas edições. Para atualizar clones existentes de wallpapers ou Neovim, revise as mudanças locais e use Git dentro de cada clone.
+
+### Wallpapers por tema
+
+Organize as imagens assim; os nomes das pastas devem estar em minúsculas:
+
+```text
+~/.local/share/rice-arch/Wallpapers_Pack/wallpapers/
+├── 613342.jpg          # Preservado para o SDDM
+├── nord/
+├── gruvbox/
+├── catppuccin/
+└── solitude/
+```
+
+Cada tema usa somente as imagens diretamente em sua pasta (`png`, `jpg`, `jpeg` e `webp`). Se ela estiver vazia ou ausente, usa somente imagens diretamente na raiz de `wallpapers/`. Cada tema mantém sua própria fila embaralhada: trocar pelo Rofi aplica o próximo wallpaper imediatamente; Super + Shift + W e a rotação automática de uma hora avançam essa mesma fila. Ao voltar a um tema, a fila continua de onde parou. As filas recomeçam no login e novos arquivos entram no próximo embaralhamento. Uma falha ao aplicar a imagem não avança a fila.
+
+Alterar o repositório não atualiza os scripts já instalados em `~/.config/hypr/scripts/`. Para atualizar apenas esta integração, execute a partir do repositório, em Bash:
+
+```bash
+config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
+backup=$(mktemp -d "$config/backup-wallpapers.XXXXXXXX")
+cp -a "$config/scripts/theme.sh" "$config/scripts/wallpaper.sh" "$backup/"
+install -m 755 dotfiles/hypr/scripts/{theme,wallpaper}.sh "$config/scripts/"
+```
+
+Encerre a sessão e entre novamente para reiniciar o processo de rotação com o script atualizado. Recarregar o Hyprland não substitui um processo de rotação que já está executando. Para instalar também o tema Solitude e os demais componentes atualizados, execute novamente o instalador.
+
+Teste alternando os temas pelo Rofi e pressionando Super + Shift + W. Confira a imagem ativa com `hyprctl hyprpaper listactive`. A imagem exibida usa um arquivo temporário; as filas ficam em `$XDG_RUNTIME_DIR/rice-wallpaper-$HYPRLAND_INSTANCE_SIGNATURE/queue-<tema>`.
 
 ### Monitores opcionais
 

@@ -16,7 +16,7 @@ grep -q '#c7a77a' "$XDG_DATA_HOME/themes/Rice-Arch-gruvbox/gtk-3.0/gtk.css"
 places="$temp/system/icons/Papirus/48x48/places"
 mkdir -p "$places" "$XDG_DATA_HOME/themes/Nordic/gtk-3.0"
 touch "$XDG_DATA_HOME/themes/Nordic/gtk-3.0/gtk.css" "$places/folder.svg"
-for pair in nord:nordic gruvbox:palebrown catppuccin:violet; do
+for pair in nord:nordic gruvbox:palebrown catppuccin:violet solitude:grey; do
     palette=${pair%:*}
     color=${pair#*:}
     touch "$places/folder-$color.svg"
