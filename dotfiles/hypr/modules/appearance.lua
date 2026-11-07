@@ -33,3 +33,9 @@ hl.window_rule({
 	size = { "monitor_w*0.70", "monitor_h*0.65" },
 	suppress_event = "maximize",
 })
+hl.config({
+	general = {
+		gaps_in = 6, -- Espaço entre janelas lado a lado.
+		gaps_out = 12, -- Espaço entre as janelas e a borda da tela.
+	},
+})
