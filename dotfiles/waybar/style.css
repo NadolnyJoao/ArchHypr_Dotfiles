@@ -1,0 +1,9 @@
+@import url("colors.css");
+
+* { font-family: "JetBrainsMono Nerd Font", monospace; font-size: 13px; }
+window#waybar { background: @base; color: @text; }
+#workspaces button { color: @text; padding: 0 8px; }
+#workspaces button.active { color: @base; background: @accent; }
+#clock, #pulseaudio, #network, #battery, #tray, #custom-notifications, #custom-power { padding: 0 9px; }
+tooltip { background: @base; }
+tooltip label { color: @text; }

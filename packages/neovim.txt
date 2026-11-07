@@ -1,0 +1,12 @@
+neovim
+git
+ripgrep
+fd
+unzip
+curl
+gcc
+make
+cmake
+tree-sitter-cli
+ttf-jetbrains-mono-nerd
+wl-clipboard
