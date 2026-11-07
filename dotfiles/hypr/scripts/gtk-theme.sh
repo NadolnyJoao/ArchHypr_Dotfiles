@@ -30,3 +30,4 @@ treeview.view:selected, iconview.view:selected, menuitem:hover {
 CSS
 mv -fT -- "$temp" "$dir/gtk.css"
 gsettings set org.gnome.desktop.interface gtk-theme "$name"
+gsettings set org.gnome.desktop.interface color-scheme prefer-dark
