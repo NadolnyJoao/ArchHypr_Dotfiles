@@ -82,6 +82,13 @@ hl.bind(
 	{ description = "Escolher tema" }
 )
 
+-- Avança na fila compartilhada com a troca automática.
+command(
+	"SUPER + SHIFT + W",
+	[[bash "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/wallpaper.sh" next]],
+	"Próximo wallpaper"
+)
+
 -- Teclas físicas de áudio e brilho
 command("XF86AudioRaiseVolume", "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+", "Aumentar volume")
 command("XF86AudioLowerVolume", "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-", "Diminuir volume")
