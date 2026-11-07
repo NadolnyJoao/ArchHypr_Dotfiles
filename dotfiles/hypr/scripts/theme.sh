@@ -12,6 +12,19 @@ for color in "$base" "$text" "$accent"; do
     [[ $color =~ ^[[:xdigit:]]{6}$ ]] || exit 1
 done
 
+# A segunda linha, quando presente, define as 16 cores ANSI do Kitty.
+ansi_colors=()
+{
+    read -r _
+    read -r -a ansi_colors || true
+} < "$config/hypr/themes/$theme"
+if (( ${#ansi_colors[@]} )); then
+    (( ${#ansi_colors[@]} == 16 )) || exit 1
+    for color in "${ansi_colors[@]}"; do
+        [[ $color =~ ^[[:xdigit:]]{6}$ ]] || exit 1
+    done
+fi
+
 # Escreve cada arquivo completo antes de substituir a paleta anterior.
 write_colors() {
     local target=$1 temp
@@ -29,8 +42,15 @@ for component in waybar swaync; do
 done
 printf '* { base: #%s; text: #%s; accent: #%s; background-color: transparent; text-color: @text; }\n' "$base" "$text" "$accent" |
     write_colors "$config/rofi/colors.rasi"
-printf 'background #%s\nforeground #%s\nselection_background #%s\n' "$base" "$text" "$accent" |
-    write_colors "$config/kitty/colors.conf"
+{
+    printf 'background #%s\nforeground #%s\nselection_background #%s\n' "$base" "$text" "$accent"
+    if (( ${#ansi_colors[@]} )); then
+        printf 'selection_foreground #%s\ncursor #%s\n' "$base" "$accent"
+        for index in "${!ansi_colors[@]}"; do
+            printf 'color%s #%s\n' "$index" "${ansi_colors[index]}"
+        done
+    fi
+} | write_colors "$config/kitty/colors.conf"
 printf 'return { base = "%s", text = "%s", accent = "%s" }\n' "$base" "$text" "$accent" |
     write_colors "$config/hypr/modules/colors.lua"
 printf '%s\n' "$theme" | write_colors "$config/hypr/current-theme"

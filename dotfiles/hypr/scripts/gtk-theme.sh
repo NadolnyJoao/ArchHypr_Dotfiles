@@ -6,10 +6,11 @@ config=${XDG_CONFIG_HOME:-$HOME/.config}
 data=${XDG_DATA_HOME:-$HOME/.local/share}
 
 # Prefira um tema GTK3 completo, quando instalado para a paleta ativa.
+ready_theme=''
 case "$theme" in
     nord) ready_theme=Nordic; folder_color=nordic ;;
-    gruvbox) ready_theme=Rice-Gruvbox; folder_color=paleorange ;;
-    catppuccin) ready_theme=Rice-Catppuccin-Mocha; folder_color=violet ;;
+    gruvbox) folder_color=palebrown ;;
+    catppuccin) folder_color=violet ;;
 esac
 
 # Os ícones coloridos são links para o Papirus instalado pelo pacman.
@@ -59,7 +60,7 @@ if ! apply_icon_theme; then
 fi
 
 for theme_root in "$data/themes" "$HOME/.themes" /usr/share/themes; do
-    if [[ -f $theme_root/$ready_theme/gtk-3.0/gtk.css ]]; then
+    if [[ -n $ready_theme && -f $theme_root/$ready_theme/gtk-3.0/gtk.css ]]; then
         gsettings set org.gnome.desktop.interface gtk-theme "$ready_theme"
         gsettings set org.gnome.desktop.interface color-scheme prefer-dark
         exit 0
@@ -83,6 +84,8 @@ cat > "$temp" <<CSS
 @define-color theme_text_color #$text;
 @define-color theme_selected_bg_color #$accent;
 @define-color theme_selected_fg_color #$base;
+@define-color selected_bg_color @theme_selected_bg_color;
+@define-color selected_fg_color @theme_selected_fg_color;
 window, dialog, headerbar, toolbar, treeview.view, iconview.view, menu {
     background-color: @theme_bg_color;
     color: @theme_fg_color;
@@ -124,6 +127,12 @@ menu > menuitem.separator {
 .thunar .sidebar treeview.view {
     background-color: transparent;
 }
+.thunar .standard-view,
+.thunar .standard-view viewport,
+.thunar .standard-view .view {
+    background-color: @theme_base_color;
+    color: @theme_text_color;
+}
 .thunar toolbar {
     padding: 5px 8px;
     background-color: mix(@theme_bg_color, @theme_fg_color, 0.06);
@@ -144,7 +153,8 @@ menu > menuitem.separator {
 }
 .thunar .sidebar treeview.view:selected,
 .thunar treeview.view:selected,
-.thunar iconview.view:selected {
+.thunar iconview.view:selected,
+.thunar .standard-view .view:selected {
     background-color: @theme_selected_bg_color;
     color: @theme_selected_fg_color;
 }
