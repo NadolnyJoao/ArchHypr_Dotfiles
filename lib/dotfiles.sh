@@ -22,6 +22,7 @@ install_desktop_dotfiles() {
         hypr/themes/nord hypr/themes/gruvbox hypr/themes/catppuccin \
         hypr/scripts/theme.sh hypr/scripts/power-menu.sh \
         hypr/scripts/gtk-theme.sh \
+        fish/conf.d/rice-arch.fish \
         waybar/config.jsonc waybar/style.css swaync/style.css rofi/config.rasi kitty/kitty.conf; then
         changed=0
     else

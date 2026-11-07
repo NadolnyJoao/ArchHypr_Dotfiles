@@ -1,4 +1,5 @@
 hl.on("hyprland.start", function()
+    hl.exec_cmd("systemctl --user start hyprpolkitagent.service")
     hl.exec_cmd([[config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
         if [ -r "$config/current-theme" ] && [ -r "$config/scripts/gtk-theme.sh" ]; then
             bash "$config/scripts/gtk-theme.sh" "$(cat "$config/current-theme")"

@@ -65,3 +65,5 @@ if [[ ${2:-} != --offline ]]; then
     if pgrep -u "$UID" -x swaync >/dev/null; then swaync-client --reload-css; fi
     if pgrep -u "$UID" -x kitty >/dev/null; then pkill -USR1 -u "$UID" -x kitty; fi
 fi
+
+exit 0

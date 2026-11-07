@@ -10,3 +10,6 @@ cmake
 tree-sitter-cli
 ttf-jetbrains-mono-nerd
 wl-clipboard
+ninja
+python-pip
+python-virtualenv

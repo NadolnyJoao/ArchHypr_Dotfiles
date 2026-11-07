@@ -22,6 +22,9 @@ for palette in nord gruvbox catppuccin; do
     grep -q "#$accent" "$XDG_CONFIG_HOME/rofi/colors.rasi"
     grep -q "#$base" "$XDG_CONFIG_HOME/kitty/colors.conf"
     grep -q "$accent" "$XDG_CONFIG_HOME/hypr/modules/colors.lua"
+    grep -Fq "panel: #${base}d6;" "$XDG_CONFIG_HOME/rofi/colors.rasi"
+    [[ $(grep -c '^color[0-9]\+ #' "$XDG_CONFIG_HOME/kitty/colors.conf") == 16 ]]
+    grep -Fxq "active_tab_background #$accent" "$XDG_CONFIG_HOME/kitty/colors.conf"
 done
 if bash "$theme_script" desconhecido --offline; then exit 1; fi
 run_step reexecucao '' install_desktop_dotfiles "$XDG_CONFIG_HOME"

@@ -42,8 +42,8 @@ hl.config({
 -- Transparência e desfoque das janelas da sessão.
 hl.config({
     decoration = {
-        active_opacity = 0.96,
-        inactive_opacity = 0.91,
+        active_opacity = 0.93,
+        inactive_opacity = 0.88,
         fullscreen_opacity = 1.0,
         blur = {
             enabled = true,

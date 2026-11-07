@@ -44,15 +44,11 @@ command(
 	"Abrir navegador padrão"
 )
 
--- Temas e bloqueio
--- Abre o seletor ao soltar Espaço, com Super e Shift ainda pressionados.
-hl.bind(
-	"SUPER + SHIFT + Space",
-	hl.dsp.exec_cmd([[bash "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/theme.sh" menu]]),
-	{
-		description = "Escolher tema",
-		release = true,
-	}
+-- Temas. Neste teclado, use o Shift direito para essa combinação.
+command(
+    "SUPER + SHIFT + Space",
+    [[bash "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/theme.sh" menu]],
+    "Escolher tema"
 )
 
 command("SUPER + L", [[bash "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/lock.sh"]], "Bloquear sessão")
@@ -67,19 +63,6 @@ command(
 		notify-send "Captura de tela" "Região copiada para a área de transferência"
 	]],
 	"Capturar região"
-)
-
---Seletor de temas
-
-hl.bind(
-	"SUPER + SHIFT + Space",
-	hl.dsp.exec_cmd([[
-		{
-			echo "Atalho disparado"
-			bash -x "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/theme.sh" menu
-		} > "$XDG_RUNTIME_DIR/rofi-tema.log" 2>&1
-	]]),
-	{ description = "Escolher tema" }
 )
 
 -- Avança na fila compartilhada com a troca automática.

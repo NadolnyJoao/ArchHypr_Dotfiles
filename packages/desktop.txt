@@ -43,3 +43,7 @@ adwaita-icon-theme
 python
 libxkbcommon
 papirus-icon-theme
+less
+desktop-file-utils
+shared-mime-info
+xfconf

@@ -9,6 +9,7 @@ source "$project_dir/lib/dotfiles.sh"
 source "$project_dir/lib/wallpapers.sh"
 source "$project_dir/lib/sddm.sh"
 source "$project_dir/lib/finish.sh"
+source "$project_dir/lib/integration.sh"
 
 config_dir=${XDG_CONFIG_HOME:-$HOME/.config}
 state_dir=${XDG_STATE_HOME:-$HOME/.local/state}/rice-arch
@@ -23,12 +24,15 @@ for package in "${neovim_packages[@]}"; do
     fi
 done
 
+(( $# <= 1 )) || { printf 'Use --help para consultar as opções.\n' >&2; exit 2; }
+
 case "${1:-}" in
     --dry-run)
         printf 'Pacotes planejados:\n'
         printf '  %s\n' "${packages[@]}"
         printf 'Flatpak: app.ytmdesktop.ytmdesktop\nNeovim: %s → %s/nvim\n' "$neovim_url" "$config_dir"
         printf 'Dotfiles: %s/hypr (Lua, inatividade e filtro noturno)\n' "$config_dir"
+        printf 'Nordic: clonar tema GTK3 via HTTPS\n'
         printf 'Wallpapers: %s → %s\n' "$wallpaper_url" "$wallpaper_dir"
         exit 0 ;;
     --help)
@@ -62,7 +66,10 @@ else
     exit 1
 fi
 
+sudo_authorized=1
 install_arch_packages "${packages[@]}"
+run_step hyprland-versao pacote-hyprland check_hyprland_version
+run_step nordic-tema pacote-git install_nordic_theme
 run_step youtube-music 'pacote-flatpak' install_youtube_music
 
 neovim_dependencies=()
@@ -75,21 +82,32 @@ run_step hypridle-config 'pacote-hypridle' install_hyprland_dotfiles "$config_di
     hypr/scripts/idle-brightness.sh hypr/hypridle.conf
 run_step hyprsunset-config 'pacote-hyprsunset' install_hyprland_dotfiles "$config_dir" \
     hypr/hyprsunset.conf
-run_step desktop-config 'pacote-hyprland pacote-waybar pacote-rofi pacote-swaync pacote-kitty' install_desktop_dotfiles "$config_dir"
+run_step desktop-config 'hyprland-versao pacote-waybar pacote-rofi pacote-swaync pacote-kitty pacote-fish' install_desktop_dotfiles "$config_dir"
 run_step wallpaper-pack 'pacote-git' install_wallpaper_pack "$wallpaper_url" "$wallpaper_dir"
 run_step wallpaper-config 'pacote-hyprpaper wallpaper-pack' install_hyprland_dotfiles "$config_dir" \
     hypr/scripts/wallpaper.sh hypr/hyprpaper.conf
 run_step lock-config 'pacote-hyprlock desktop-config' install_hyprland_dotfiles "$config_dir" hypr/scripts/lock.sh
 run_step thinkpad-config 'pacote-python pacote-libxkbcommon' install_hyprland_dotfiles "$config_dir" \
     hypr/scripts/thinkpad-remap.sh hypr/scripts/remap-keymap.py
-run_step hyprland-config 'pacote-hyprland pacote-kitty pacote-rofi' install_hyprland_dotfiles "$config_dir" \
+run_step hyprland-config 'hyprland-versao desktop-config pacote-kitty pacote-fish pacote-rofi' install_hyprland_dotfiles "$config_dir" \
     hypr/modules/appearance.lua hypr/modules/bindings.lua hypr/modules/session.lua hypr/modules/input.lua hypr/hyprland.lua
 
 run_step sddm-tema 'pacote-sddm pacote-qt6-svg pacote-qt6-virtualkeyboard pacote-qt6-multimedia-ffmpeg pacote-xorg-server wallpaper-pack' \
     install_astronaut "$wallpaper_dir/wallpapers/613342.jpg"
 run_step sddm-servico 'sddm-tema hyprland-config' enable_rice_sddm
 
+run_step neovim-associacoes 'pacote-neovim pacote-kitty pacote-xdg-utils pacote-desktop-file-utils' install_neovim_associations
+run_step thunar-miniaturas 'pacote-thunar pacote-tumbler pacote-xfconf' configure_thunar
+run_step portais-config 'pacote-xdg-desktop-portal-hyprland pacote-xdg-desktop-portal-gtk' install_hyprland_dotfiles "$config_dir" \
+    xdg-desktop-portal/hyprland-portals.conf
+run_step polkit-servico 'pacote-hyprpolkitagent' systemctl --user start hyprpolkitagent.service
+run_step audio-servicos 'pacote-pipewire pacote-pipewire-pulse pacote-wireplumber' \
+    systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
+run_step gtk-preferencias 'desktop-config pacote-gsettings-desktop-schemas pacote-papirus-icon-theme' activate_desktop_theme
 run_step firefox-padrao 'pacote-firefox pacote-xdg-utils' set_default_firefox
 finish_interactive
 
-(( failed_steps == 0 ))
+if (( failed_steps > 0 )); then
+    exit 1
+fi
+(( skipped_steps == 0 )) || exit 2

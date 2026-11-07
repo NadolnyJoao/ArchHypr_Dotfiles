@@ -2,10 +2,14 @@
 # O chamador fornece report_dir. Cada etapa registra um resultado verificável.
 declare -A step_status=()
 failed_steps=0
+skipped_steps=0
 
 record_step() {
     local name=$1 status=$2 detail=$3
     step_status[$name]=$status
+    if [[ $status == PULADO ]]; then
+        skipped_steps=$((skipped_steps + 1))
+    fi
     printf '%s\t%s\t%s\n' "$status" "$name" "$detail" >> "$report_dir/resumo.tsv"
     printf '[%s] %s\n' "$status" "$name"
 }
@@ -25,6 +29,15 @@ run_step() {
         esac
     done
 
+    # Reautentique no terminal se downloads longos expirarem o cache do sudo.
+    # O prompt fica visível, mesmo que os comandos da etapa sejam enviados ao log.
+    if [[ ${sudo_authorized:-0} == 1 ]] && ! sudo -n -v >/dev/null 2>&1; then
+        if [[ ! -t 0 ]] || ! sudo -v </dev/tty >/dev/tty 2>&1; then
+            failed_steps=$((failed_steps + 1))
+            record_step "$name" FALHOU 'Autorização sudo indisponível.'
+            return 0
+        fi
+    fi
     if ( "$@" ) > "$report_dir/$name.log" 2>&1; then
         record_step "$name" OK "$name.log"
     else

@@ -17,7 +17,7 @@ window#waybar {
 .modules-left,
 .modules-center,
 .modules-right {
-    background: alpha(@base, 0.86);
+    background: alpha(@base, 0.83);
     border: 1px solid @outline;
     border-radius: 12px;
     margin: 3px 6px;
@@ -71,7 +71,7 @@ window#waybar {
 }
 
 tooltip {
-    background: alpha(@base, 0.86);
+    background: alpha(@base, 0.83);
     border: 1px solid @outline;
     border-radius: 8px;
 }
