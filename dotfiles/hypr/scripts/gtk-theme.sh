@@ -1,24 +1,72 @@
 #!/usr/bin/env bash
 # Seleciona um tema GTK3 pelo GSettings da sessão Wayland.
 set -euo pipefail
-case "${1:-}" in nord | gruvbox | catppuccin) theme=$1 ;; *) exit 2 ;; esac
+case "${1:-}" in nord|gruvbox|catppuccin) theme=$1 ;; *) exit 2 ;; esac
 config=${XDG_CONFIG_HOME:-$HOME/.config}
 data=${XDG_DATA_HOME:-$HOME/.local/share}
-# Prefere um tema GTK3 completo para a paleta ativa, quando instalado.
+
+# Prefira um tema GTK3 completo, quando instalado para a paleta ativa.
 case "$theme" in
-nord) ready_theme=Nordic ;;
-gruvbox) ready_theme=Rice-Gruvbox ;;
-catppuccin) ready_theme=Rice-Catppuccin-Mocha ;;
+    nord) ready_theme=Nordic; folder_color=nordic ;;
+    gruvbox) ready_theme=Rice-Gruvbox; folder_color=paleorange ;;
+    catppuccin) ready_theme=Rice-Catppuccin-Mocha; folder_color=violet ;;
 esac
 
+# Os ícones coloridos são links para o Papirus instalado pelo pacman.
+# O restante do conjunto vem do Papirus-Dark por herança.
+apply_icon_theme() {
+    local root places='' icon filename generic
+    local -a roots
+    local icon_theme="Rice-Arch-Icons-$theme"
+    local destination="$data/icons/$icon_theme"
+
+    IFS=: read -r -a roots <<< "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+    for root in "${roots[@]}"; do
+        if [[ $root == /* && -f $root/icons/Papirus/48x48/places/folder-$folder_color.svg ]]; then
+            places="$root/icons/Papirus/48x48/places"
+            break
+        fi
+    done
+    [[ -n $places ]] || return 0
+
+    mkdir -p -- "$destination/scalable/places" || return 1
+    for icon in "$places/folder-$folder_color.svg" "$places/folder-$folder_color-"*.svg; do
+        [[ -f $icon ]] || continue
+        filename=${icon##*/}
+        generic=${filename/folder-$folder_color/folder}
+        [[ -f $places/$generic ]] || continue
+        ln -sfn -- "$icon" "$destination/scalable/places/$generic" || return 1
+    done
+    cat > "$destination/index.theme" <<ICONS || return 1
+[Icon Theme]
+Name=$icon_theme
+Comment=Papirus com pastas da paleta $theme
+Inherits=Papirus-Dark,hicolor
+Directories=scalable/places
+
+[scalable/places]
+Size=48
+MinSize=8
+MaxSize=512
+Type=Scalable
+Context=Places
+ICONS
+    gsettings set org.gnome.desktop.interface icon-theme "$icon_theme"
+}
+
+if ! apply_icon_theme; then
+    printf 'Não foi possível trocar o tema de ícones.\n' >&2
+fi
+
 for theme_root in "$data/themes" "$HOME/.themes" /usr/share/themes; do
-  if [[ -f $theme_root/$ready_theme/gtk-3.0/gtk.css ]]; then
-    gsettings set org.gnome.desktop.interface gtk-theme "$ready_theme"
-    gsettings set org.gnome.desktop.interface color-scheme prefer-dark
-    exit 0
-  fi
+    if [[ -f $theme_root/$ready_theme/gtk-3.0/gtk.css ]]; then
+        gsettings set org.gnome.desktop.interface gtk-theme "$ready_theme"
+        gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+        exit 0
+    fi
 done
-read -r base text accent <"$config/hypr/themes/$theme"
+
+read -r base text accent < "$config/hypr/themes/$theme"
 for color in "$base" "$text" "$accent"; do [[ $color =~ ^[[:xdigit:]]{6}$ ]] || exit 1; done
 
 name="Rice-Arch-$theme"
@@ -26,7 +74,7 @@ dir="$data/themes/$name/gtk-3.0"
 mkdir -p -- "$dir"
 temp=$(mktemp -- "$dir/.gtk.XXXXXXXX")
 trap 'rm -f -- "$temp"' EXIT
-cat >"$temp" <<CSS
+cat > "$temp" <<CSS
 @import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
 
 @define-color theme_bg_color #$base;

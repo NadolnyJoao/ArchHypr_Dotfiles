@@ -41,3 +41,4 @@ gsettings-desktop-schemas
 adwaita-icon-theme
 python
 libxkbcommon
+papirus-icon-theme
