@@ -7,9 +7,11 @@ prepare_astronaut() {
        -d $theme/Fonts && -f $wallpaper ]] || return 1
     grep -q '^ConfigFile=' "$theme/metadata.desktop" || return 1
     grep -Eq '^[[:space:]]*Background[[:space:]]*=' "$config" || return 1
-    install -D -m 644 -- "$wallpaper" "$theme/Backgrounds/arch-nord-dark.png" || return 1
+    install -D -m 644 -- "$wallpaper" "$theme/Backgrounds/613342.jpg" || return 1
     sed -i 's|^ConfigFile=.*|ConfigFile=Themes/japanese_aesthetic.conf|' "$theme/metadata.desktop" || return 1
-    sed -Ei 's|^[[:space:]]*Background[[:space:]]*=.*|Background="Backgrounds/arch-nord-dark.png"|' "$config"
+    sed -Ei 's|^[[:space:]]*Background[[:space:]]*=.*|Background="Backgrounds/613342.jpg"|' "$config" || return 1
+    # Mantém os textos brancos, incluindo os campos e estados de destaque.
+    sed -Ei 's/^([[:space:]]*[[:alnum:]_]*TextColor[[:space:]]*=[[:space:]]*).*/\1"#ffffff"/' "$config"
 }
 
 install_astronaut() (

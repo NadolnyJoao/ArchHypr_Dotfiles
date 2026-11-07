@@ -86,7 +86,7 @@ run_step hyprland-config 'pacote-hyprland pacote-kitty pacote-rofi' install_hypr
     hypr/modules/appearance.lua hypr/modules/bindings.lua hypr/modules/session.lua hypr/modules/input.lua hypr/hyprland.lua
 
 run_step sddm-tema 'pacote-sddm pacote-qt6-svg pacote-qt6-virtualkeyboard pacote-qt6-multimedia-ffmpeg pacote-xorg-server wallpaper-pack' \
-    install_astronaut "$wallpaper_dir/wallpapers/arch-nord-dark.png"
+    install_astronaut "$wallpaper_dir/wallpapers/613342.jpg"
 run_step sddm-servico 'sddm-tema hyprland-config' enable_rice_sddm
 
 run_step firefox-padrao 'pacote-firefox pacote-xdg-utils' set_default_firefox
