@@ -2,7 +2,9 @@
 
 Rice para Arch Linux x86_64 com Hyprland **0.57 ou superior**, iniciado a partir do perfil padrão. O instalador aplica os dotfiles, instala os programas e habilita o SDDM Astronaut com o tema Japanese Aesthetic.
 
-A revisão automatizada cobre instalação limpa e reexecução com comandos simulados. A validação de login pelo SDDM, renderização, teclas físicas e desbloqueio precisa ser feita numa sessão Arch. O relatório de revisão está em [REVISAO.md](REVISAO.md).
+Este repo reproduz o ambiente gráfico sobre um Arch já instalado; não instala nem clona o sistema operacional, partições, bootloader, drivers, contas ou dados pessoais. O suporte declarado é Arch Linux x86_64, com rede, sudo e sessão de usuário funcional.
+
+A revisão automatizada cobre instalação limpa e reexecução com comandos simulados. A validação de login pelo SDDM, renderização, teclas físicas e desbloqueio precisa ser feita numa sessão Arch. O relatório atual, com resultados e limitações, está em [REVISAO.md](REVISAO.md).
 
 ## Antes de começar
 
@@ -40,7 +42,9 @@ O script atualiza o Arch antes de instalar novos pacotes. Se a atualização fal
 
 Ao final, informe nome e e-mail do Git. Na criação da chave SSH, o OpenSSH pede uma frase secreta. O instalador mostra a chave pública para cadastro em [GitHub → SSH and GPG keys](https://github.com/settings/keys). Depois do cadastro, você pode testar com `ssh -T git@github.com`. Repositórios são clonados via HTTPS durante a instalação.
 
-Leia o relatório antes de aceitar o reinício. O padrão do prompt é **não**. No SDDM, escolha a sessão **Hyprland**.
+A configuração principal só é publicada quando seus scripts e comandos essenciais estão disponíveis. Falhas em componentes independentes continuam sendo registradas.
+
+Leia o relatório antes de aceitar o reinício. A opção de reiniciar só aparece quando não há etapas falhas ou puladas. O padrão do prompt é **não**. No SDDM, escolha a sessão **Hyprland**.
 
 ## O que fica configurado
 
@@ -54,8 +58,8 @@ Leia o relatório antes de aceitar o reinício. O padrão do prompt é **não**.
 | Neovim | Clone do Neovim-IDE e associação dos arquivos de código ao Neovim dentro do Kitty |
 | Fish | Sugestões e autocomplete, com a saudação oculta |
 | SwayNC | Notificações e histórico acessíveis pela Waybar |
-| Wallpaper | Pack clonado, fila embaralhada e avanço automático a cada 15 minutos |
-| Hyprlock | Super + L com o wallpaper ativo no momento do bloqueio |
+| Wallpaper | Pack clonado, fila embaralhada e avanço automático a cada hora |
+| Hyprlock | Super + L e bloqueio antes da suspensão, com o wallpaper ativo |
 | Inatividade | Brilho a 20% após 5 minutos e tela apagada após 10 minutos |
 | Hyprsunset | 5000 K das 18h às 7h, conforme o horário local |
 | SDDM | Japanese Aesthetic com `613342.jpg` e textos brancos |
@@ -64,7 +68,7 @@ Leia o relatório antes de aceitar o reinício. O padrão do prompt é **não**.
 
 A instalação inclui o Nordic via HTTPS. Gruvbox, Catppuccin e Solitude usam temas GTK gerados pelas mesmas paletas do rice. A preferência `prefer-dark` é aplicada no login e na troca de tema. Temas escolhidos dentro dos próprios aplicativos podem sobrepor a preferência do sistema.
 
-Os plugins e ferramentas do Neovim são baixados na primeira abertura. Para C/C++, o projeto prepara GCC, Make, CMake, Ninja e as dependências de instalação de ferramentas do Mason. Outras linguagens podem exigir runtimes adicionais.
+Os plugins e ferramentas do Neovim são baixados na primeira abertura. Para C/C++, o projeto prepara GCC, Make, CMake, Ninja, LazyGit para a interface Git do editor e as dependências de instalação de ferramentas do Mason. JavaScript, TypeScript, Java, Ruby e Rust no runner exigem seus respectivos runtimes, que não fazem parte desta lista de pacotes. Os plugins externos não têm versões congeladas neste repo: novas instalações podem baixar revisões diferentes.
 
 ## Atalhos
 
@@ -204,6 +208,10 @@ cp ~/.local/state/rice-arch/EXECUCAO/backup/hypr/hyprland.lua ~/.config/hypr/hyp
 
 Confira se o backup existe antes de copiar. Backups de outros dotfiles seguem a mesma estrutura relativa. Depois de entrar na sessão, consulte `hyprctl configerrors`.
 
+### Conflito de tema do SDDM
+
+O instalador verifica o tema efetivo após copiar seu drop-in. O SDDM lê os arquivos de `/usr/lib/sddm/sddm.conf.d`, depois `/etc/sddm.conf.d` e por último `/etc/sddm.conf`. Um `Current` ou `ThemeDir` posterior pode sobrepor o rice; nesse caso, `sddm-tema` falha e `sddm-servico` é pulado. Revise o arquivo apontado no log. As preferências conflitantes não são apagadas pelo instalador.
+
 ### Diagnóstico por recurso
 
 | Sintoma | Como investigar |
@@ -228,6 +236,14 @@ Execute a suíte com Bash, inclusive quando estiver usando Fish.
 ```bash
 bash tests/run.sh
 ```
+
+Para conferir também os parsers reais dos quatro temas, sem iniciar outra sessão nem alterar as configurações pessoais:
+
+```bash
+RICE_NATIVE_TESTS=1 bash tests/run.sh
+```
+
+O modo nativo exige Hyprland, Kitty, Fish, GTK3, libxkbcommon e desktop-file-utils instalados. Ele valida também a compilação de mapas XKB completos US e BR após o remapeamento. GTK3 pode emitir avisos por falta de tela; a aceitação de CSS não comprova a aparência. Rofi, autenticação, SDDM, suspensão e drivers precisam de teste gráfico na máquina de destino.
 
 Os testes precisam de Bash, Git, Python, Lua e utilitários básicos. Se faltar Lua, instale com sudo pacman -S --needed lua. O teste completo usa comandos simulados e uma cópia temporária dos destinos de sistema.
 
