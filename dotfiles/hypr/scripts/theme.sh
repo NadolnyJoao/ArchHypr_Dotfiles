@@ -40,12 +40,14 @@ for component in waybar swaync; do
     printf '@define-color base #%s;\n@define-color text #%s;\n@define-color accent #%s;\n' "$base" "$text" "$accent" |
         write_colors "$config/$component/colors.css"
 done
-printf '* { base: #%s; text: #%s; accent: #%s; background-color: transparent; text-color: @text; }\n' "$base" "$text" "$accent" |
+printf '* { base: #%s; text: #%s; accent: #%s; panel: #%sd6; background-color: transparent; text-color: @text; }\n' "$base" "$text" "$accent" "$base" |
     write_colors "$config/rofi/colors.rasi"
 {
     printf 'background #%s\nforeground #%s\nselection_background #%s\n' "$base" "$text" "$accent"
+    printf 'selection_foreground #%s\ncursor #%s\ncursor_text_color #%s\n' "$base" "$accent" "$base"
+    printf 'tab_bar_background #%s\ninactive_tab_background #%s\ninactive_tab_foreground #%s\n' "$base" "$base" "$text"
+    printf 'active_tab_background #%s\nactive_tab_foreground #%s\n' "$accent" "$base"
     if (( ${#ansi_colors[@]} )); then
-        printf 'selection_foreground #%s\ncursor #%s\n' "$base" "$accent"
         for index in "${!ansi_colors[@]}"; do
             printf 'color%s #%s\n' "$index" "${ansi_colors[index]}"
         done

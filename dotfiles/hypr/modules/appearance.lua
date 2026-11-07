@@ -39,3 +39,32 @@ hl.config({
 		gaps_out = 12, -- Espaço entre as janelas e a borda da tela.
 	},
 })
+-- Transparência e desfoque das janelas da sessão.
+hl.config({
+    decoration = {
+        active_opacity = 0.96,
+        inactive_opacity = 0.91,
+        fullscreen_opacity = 1.0,
+        blur = {
+            enabled = true,
+            size = 6,
+            passes = 2,
+            ignore_opacity = false,
+        },
+    },
+})
+
+-- O Kitty controla a transparência do próprio fundo.
+hl.window_rule({
+    name = "kitty-native-opacity",
+    match = { class = "^kitty$" },
+    opacity = "1.0 override 1.0 override 1.0 override",
+})
+
+-- Desfoque nos menus e notificações. Ignore pixels totalmente transparentes.
+hl.layer_rule({
+    name = "rice-translucent-panels",
+    match = { namespace = "^(rofi|swaync-control-center|swaync-notification-window)$" },
+    blur = true,
+    ignore_alpha = 0.15,
+})

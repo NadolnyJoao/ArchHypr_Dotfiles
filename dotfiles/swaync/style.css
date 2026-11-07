@@ -1,5 +1,5 @@
 @import url("colors.css");
 
-.control-center, .notification { background: @base; color: @text; }
+.control-center, .notification { background: alpha(@base, 0.87); color: @text; }
 .notification-content .summary, .notification-content .body { color: @text; }
 .notification { border: 1px solid @accent; border-radius: 8px; }

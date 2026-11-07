@@ -1,9 +1,81 @@
 @import url("colors.css");
 
-* { font-family: "JetBrainsMono Nerd Font", monospace; font-size: 13px; }
-window#waybar { background: @base; color: @text; }
-#workspaces button { color: @text; padding: 0 8px; }
-#workspaces button.active { color: @base; background: @accent; }
-#clock, #pulseaudio, #network, #battery, #tray, #custom-notifications, #custom-power { padding: 0 9px; }
-tooltip { background: @base; }
-tooltip label { color: @text; }
+@define-color surface mix(@base, @text, 0.08);
+@define-color outline mix(@base, @text, 0.18);
+
+* {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 12px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: transparent;
+    color: @text;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+    background: alpha(@base, 0.86);
+    border: 1px solid @outline;
+    border-radius: 12px;
+    margin: 3px 6px;
+    padding: 2px 5px;
+}
+
+#workspaces button {
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    box-shadow: none;
+    color: @text;
+    min-width: 16px;
+    padding: 0 6px;
+    text-shadow: none;
+}
+
+#workspaces button:hover {
+    background: @surface;
+}
+
+#workspaces button.active {
+    background: @accent;
+    color: @base;
+    font-weight: bold;
+}
+
+#clock {
+    color: @accent;
+    font-weight: bold;
+    padding: 0 9px;
+}
+
+#pulseaudio,
+#network,
+#battery,
+#tray,
+#custom-notifications,
+#custom-power {
+    padding: 0 7px;
+}
+
+#pulseaudio.muted,
+#network.disconnected {
+    color: mix(@text, @base, 0.35);
+}
+
+#custom-notifications,
+#custom-power {
+    color: @accent;
+}
+
+tooltip {
+    background: alpha(@base, 0.86);
+    border: 1px solid @outline;
+    border-radius: 8px;
+}
+
+tooltip label {
+    color: @text;
+}
