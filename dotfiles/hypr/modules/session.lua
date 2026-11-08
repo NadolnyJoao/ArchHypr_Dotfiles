@@ -10,6 +10,8 @@ hl.on("hyprland.start", function()
             exec bash "$script" loop
         fi]])
     hl.exec_cmd("command -v swaync >/dev/null && exec swaync")
+    hl.exec_cmd("command -v swayosd-server >/dev/null && exec swayosd-server")
+    hl.exec_cmd("command -v cliphist >/dev/null && exec wl-paste --watch cliphist store")
     hl.exec_cmd("command -v waybar >/dev/null && exec waybar")
     hl.exec_cmd("command -v hypridle >/dev/null && exec hypridle")
     hl.exec_cmd("command -v hyprsunset >/dev/null && exec hyprsunset")

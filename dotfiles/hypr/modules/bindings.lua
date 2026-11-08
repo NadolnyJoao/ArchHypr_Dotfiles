@@ -72,9 +72,15 @@ command(
 	"Próximo wallpaper"
 )
 
+-- Escolhe um item e o coloca na área de transferência para colar com Ctrl + V.
+command("SUPER + V", [[
+    selection=$(cliphist list | rofi -dmenu -i -no-custom -p 'Histórico de cópia') &&
+    [ -n "$selection" ] && printf '%s\n' "$selection" | cliphist decode | wl-copy
+]], "Histórico de cópia")
+
 -- Teclas físicas de áudio e brilho
-command("XF86AudioRaiseVolume", "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+", "Aumentar volume")
-command("XF86AudioLowerVolume", "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-", "Diminuir volume")
-command("XF86AudioMute", "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle", "Silenciar áudio")
-command("XF86MonBrightnessUp", "brightnessctl -c backlight set 5%+", "Aumentar brilho")
-command("XF86MonBrightnessDown", "brightnessctl -c backlight set 5%-", "Diminuir brilho")
+command("XF86AudioRaiseVolume", "swayosd-client --output-volume raise --max-volume 100 || wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+", "Aumentar volume")
+command("XF86AudioLowerVolume", "swayosd-client --output-volume lower || wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-", "Diminuir volume")
+command("XF86AudioMute", "swayosd-client --output-volume mute-toggle || wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle", "Silenciar áudio")
+command("XF86MonBrightnessUp", "swayosd-client --brightness +5 || brightnessctl -c backlight set 5%+", "Aumentar brilho")
+command("XF86MonBrightnessDown", "swayosd-client --brightness -5 || brightnessctl -c backlight set 5%-", "Diminuir brilho")
