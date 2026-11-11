@@ -49,3 +49,6 @@ less
 desktop-file-utils
 shared-mime-info
 xfconf
+bluez
+bluez-utils
+blueman
