@@ -44,8 +44,12 @@ gsettings-desktop-schemas
 adwaita-icon-theme
 python
 libxkbcommon
+wev
 papirus-icon-theme
 less
 desktop-file-utils
 shared-mime-info
 xfconf
+bluez
+bluez-utils
+blueman

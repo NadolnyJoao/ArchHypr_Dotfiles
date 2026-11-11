@@ -41,30 +41,38 @@ hl.config({
 })
 -- Transparência e desfoque das janelas da sessão.
 hl.config({
-    decoration = {
-        active_opacity = 0.93,
-        inactive_opacity = 0.88,
-        fullscreen_opacity = 1.0,
-        blur = {
-            enabled = true,
-            size = 6,
-            passes = 2,
-            ignore_opacity = false,
-        },
-    },
+	decoration = {
+		active_opacity = 0.93,
+		inactive_opacity = 0.88,
+		fullscreen_opacity = 1.0,
+		blur = {
+			enabled = true,
+			size = 6,
+			passes = 2,
+			ignore_opacity = false,
+		},
+	},
 })
 
 -- O Kitty controla a transparência do próprio fundo.
 hl.window_rule({
-    name = "kitty-native-opacity",
-    match = { class = "^kitty$" },
-    opacity = "1.0 override 1.0 override 1.0 override",
+	name = "kitty-native-opacity",
+	match = { class = "^kitty$" },
+	opacity = "1.0 override 1.0 override 1.0 override",
 })
 
 -- Desfoque nos menus e notificações. Ignore pixels totalmente transparentes.
 hl.layer_rule({
-    name = "rice-translucent-panels",
-    match = { namespace = "^(rofi|swaync-control-center|swaync-notification-window)$" },
-    blur = true,
-    ignore_alpha = 0.15,
+	name = "rice-translucent-panels",
+	match = { namespace = "^(rofi|swaync-control-center|swaync-notification-window)$" },
+	blur = true,
+	ignore_alpha = 0.15,
+})
+hl.window_rule({
+	name = "connection-managers-floating",
+	match = { class = "^(nm-connection-editor|blueman-manager|pavucontrol|org[.]pulseaudio[.]pavucontrol)$" },
+	float = true,
+	center = true,
+	size = { "monitor_w*0.70", "monitor_h*0.65" },
+	suppress_event = "maximize",
 })
