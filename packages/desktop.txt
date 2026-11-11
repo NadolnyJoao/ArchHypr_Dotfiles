@@ -44,6 +44,7 @@ gsettings-desktop-schemas
 adwaita-icon-theme
 python
 libxkbcommon
+wev
 papirus-icon-theme
 less
 desktop-file-utils

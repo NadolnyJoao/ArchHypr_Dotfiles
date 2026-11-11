@@ -153,10 +153,12 @@ O layout do teclado é lido do X11 configurado pelo `localectl`, quando disponí
 Execute no Hyprland para transformar Ctrl direito em `/` e Shift + Ctrl direito em `?`.
 
 ```bash
-bash "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/thinkpad-remap.sh" on
+bash -c 'exec bash "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/thinkpad-remap.sh" on'
 ```
 
-Para desfazer, use o mesmo comando com `off`. O script transforma e valida uma cópia do mapa da sessão. A ativação vale para a instância atual do Hyprland. Confira caracteres, Shift e Ctrl esquerdo após ativar no teclado físico.
+Se a captura automática falhar, o script abre o `wev`. Clique na janela, pressione Ctrl direito e feche com Super + Q.
+
+Para desfazer, troque `on` por `off`. O script transforma e valida uma cópia do mapa da sessão. A ativação vale para a instância atual do Hyprland. Confira caracteres, Shift e Ctrl esquerdo após ativar no teclado físico.
 
 ## Relatórios
 
