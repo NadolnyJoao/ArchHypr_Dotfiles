@@ -35,6 +35,7 @@ prelude = """
 local seen = {}
 hl = {
     config = function(settings) end,
+    gesture = function(settings) end,
     monitor = function(settings) end,
     layer_rule = function(settings) end,
     window_rule = function(settings) end,

@@ -22,6 +22,15 @@ for workspace = 1, 9 do
 	hl.bind("SUPER + SHIFT + " .. key, hl.dsp.window.move({ workspace = key }))
 end
 
+-- Deslize três dedos para trocar de workspace, incluindo os vazios.
+hl.config({
+    gestures = {
+        workspace_swipe_use_r = true,
+        workspace_swipe_distance = 160,
+    },
+})
+hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
+
 -- Mouse. Segure Super e arraste com o botão esquerdo ou direito.
 hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), {
 	mouse = true,
