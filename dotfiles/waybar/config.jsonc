@@ -13,17 +13,20 @@
   "pulseaudio": {
     "format": "  {volume}%",
     "format-muted": "mudo",
-    "on-click": "pavucontrol"
+    "on-click": "pavucontrol",
+    "on-scroll-up": "swayosd-client --output-volume raise --max-volume 100 || wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
+    "on-scroll-down": "swayosd-client --output-volume lower || wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
   },
   "network": {
-    "format-wifi": "{essid}",
+    "format-wifi": "  {essid}",
     "format-ethernet": "󰈀",
     "format-disconnected": "sem rede",
     "on-click": "systemctl is-active --quiet NetworkManager && nm-connection-editor"
   },
   "battery": {
-    "format": "bat {capacity}%",
-    "format-charging": "ac {capacity}%"
+    "format": "{icon}  {capacity}%",
+    "format-charging": "  {capacity}%",
+    "format-icons": ["", "", "", "", ""]
   },
   "custom/notifications": {
     "exec": "swaync-client --subscribe-waybar",

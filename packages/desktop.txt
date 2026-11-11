@@ -2,6 +2,8 @@ hyprland
 waybar
 rofi
 swaync
+swayosd
+cliphist
 pavucontrol
 nm-connection-editor
 networkmanager
