@@ -53,6 +53,7 @@ window#waybar {
 
 #pulseaudio,
 #network,
+#bluetooth,
 #battery,
 #tray,
 #custom-notifications,
@@ -61,10 +62,13 @@ window#waybar {
 }
 
 #pulseaudio.muted,
-#network.disconnected {
+#network.disconnected,
+#bluetooth.off,
+#bluetooth.disabled {
     color: mix(@text, @base, 0.35);
 }
 
+#bluetooth.connected,
 #custom-notifications,
 #custom-power {
     color: @accent;

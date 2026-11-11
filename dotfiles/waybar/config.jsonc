@@ -5,7 +5,7 @@
   "reload_style_on_change": true,
   "modules-left": ["hyprland/workspaces"],
   "modules-center": ["clock"],
-  "modules-right": ["pulseaudio", "network", "battery", "tray", "custom/notifications", "custom/power"],
+  "modules-right": ["pulseaudio", "network", "bluetooth", "battery", "tray", "custom/notifications", "custom/power"],
   "clock": {
     "format": "{:%H:%M}",
     "tooltip-format": "{:%d/%m/%y}"
@@ -22,6 +22,17 @@
     "format-ethernet": "󰈀",
     "format-disconnected": "sem rede",
     "on-click": "systemctl is-active --quiet NetworkManager && nm-connection-editor"
+  },
+  "bluetooth": {
+    "format": "",
+    "format-no-controller": "",
+    "tooltip-format": "Bluetooth",
+    "tooltip-format-off": "Bluetooth desligado",
+    "tooltip-format-disabled": "Bluetooth desativado",
+    "tooltip-format-on": "Bluetooth ligado",
+    "tooltip-format-connected": "Dispositivos conectados\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}",
+    "on-click": "blueman-manager"
   },
   "battery": {
     "format": "{icon}  {capacity}%",
