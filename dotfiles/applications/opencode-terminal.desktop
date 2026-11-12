@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=OpenCode
+Comment=Agente de programação no terminal
+Exec=kitty --title OpenCode opencode
+Terminal=false
+Type=Application
+Categories=Development;
