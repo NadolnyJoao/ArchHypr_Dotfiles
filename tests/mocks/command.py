@@ -87,6 +87,9 @@ elif name == "git":
         "/usr/bin/git", "-C", str(destination), "-c", "user.name=Teste",
         "-c", "user.email=teste@example.invalid", "commit", "-qm", "fixture"
     ], check=True)
+elif name == "keyd":
+    if args[0] not in ("check", "reload"):
+        fail()
 elif name == "systemctl":
     if "reboot" in args:
         fail(99)

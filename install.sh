@@ -102,6 +102,7 @@ run_step thunar-miniaturas 'pacote-thunar pacote-tumbler pacote-xfconf' configur
 run_step portais-config 'pacote-xdg-desktop-portal-hyprland pacote-xdg-desktop-portal-gtk' install_hyprland_dotfiles "$config_dir" \
     xdg-desktop-portal/hyprland-portals.conf
 run_step bluetooth-servico 'pacote-bluez' sudo -n systemctl enable --now bluetooth.service
+run_step keyd-servico pacote-keyd sudo -n bash "$project_dir/system/keyd/apply.sh"
 run_step polkit-servico 'pacote-hyprpolkitagent' systemctl --user start hyprpolkitagent.service
 run_step audio-servicos 'pacote-pipewire pacote-pipewire-pulse pacote-wireplumber' \
     systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service

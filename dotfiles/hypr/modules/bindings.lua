@@ -74,12 +74,11 @@ command(
 	"Capturar região"
 )
 
--- Avança na fila compartilhada com a troca automática.
-command(
-	"SUPER + SHIFT + W",
-	[[bash "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/wallpaper.sh" next]],
-	"Próximo wallpaper"
-)
+-- Menu com miniaturas e navegação direta pela fila.
+local wallpaper_script = [[bash "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/wallpaper.sh" ]]
+command("SUPER + SHIFT + W", wallpaper_script .. "menu", "Escolher wallpaper")
+command("SUPER + period", wallpaper_script .. "next", "Próximo wallpaper")
+command("SUPER + comma", wallpaper_script .. "prev", "Wallpaper anterior")
 
 -- Escolhe um item e o coloca na área de transferência para colar com Ctrl + V.
 command(

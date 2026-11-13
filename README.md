@@ -82,7 +82,9 @@ Os plugins e ferramentas do Neovim são baixados na primeira abertura. Para C/C+
 | Super + Shift + Enter | Navegador padrão |
 | Super + Espaço | Aplicativos no Rofi |
 | Super + Shift + Espaço | Escolher tema |
-| Super + Shift + W | Próximo wallpaper |
+| Super + Shift + W | Escolher wallpaper no Rofi com miniaturas |
+| Super + . | Próximo wallpaper na fila |
+| Super + , | Wallpaper anterior na fila |
 | Super + Shift + S | Captura de região para a área de transferência |
 | Super + L | Bloquear a sessão |
 | Super + setas | Mudar foco |
@@ -127,7 +129,7 @@ Organize as imagens assim; os nomes das pastas devem estar em minúsculas:
 └── solitude/
 ```
 
-Cada tema usa somente as imagens diretamente em sua pasta (`png`, `jpg`, `jpeg` e `webp`). Se ela estiver vazia ou ausente, usa somente imagens diretamente na raiz de `wallpapers/`. Cada tema mantém sua própria fila embaralhada: trocar pelo Rofi aplica o próximo wallpaper imediatamente; Super + Shift + W e a rotação automática de uma hora avançam essa mesma fila. Ao voltar a um tema, a fila continua de onde parou. As filas recomeçam no login e novos arquivos entram no próximo embaralhamento. Uma falha ao aplicar a imagem não avança a fila.
+A fila de cada tema começa embaralhada com as imagens da sua pasta (`png`, `jpg`, `jpeg` e `webp`). Se a pasta estiver vazia ou ausente, a fila usa as imagens diretamente na raiz de `wallpapers/`. O menu de wallpapers lista o pack inteiro. Escolher uma imagem que já está na fila move a posição até ela. Uma imagem de outra pasta entra logo após a posição atual. Os atalhos de avançar e voltar percorrem essa ordem e dão a volta ao chegar às pontas. A rotação de uma hora também avança nessa fila. Cada tema mantém sua própria posição durante a sessão.
 
 Alterar o repositório não atualiza os scripts já instalados em `~/.config/hypr/scripts/`. Para atualizar apenas esta integração, execute a partir do repositório, em Bash:
 
@@ -140,13 +142,30 @@ install -m 755 dotfiles/hypr/scripts/{theme,wallpaper}.sh "$config/scripts/"
 
 Encerre a sessão e entre novamente para reiniciar o processo de rotação com o script atualizado. Recarregar o Hyprland não substitui um processo de rotação que já está executando. Para instalar também o tema Solitude e os demais componentes atualizados, execute novamente o instalador.
 
-Teste alternando os temas pelo Rofi e pressionando Super + Shift + W. Confira a imagem ativa com `hyprctl hyprpaper listactive`. A imagem exibida usa um arquivo temporário; as filas ficam em `$XDG_RUNTIME_DIR/rice-wallpaper-$HYPRLAND_INSTANCE_SIGNATURE/queue-<tema>`.
+Teste alternando os temas pelo Rofi e pressionando Super + Shift + W. Confira a imagem ativa com `hyprctl hyprpaper listactive`. A imagem exibida usa um arquivo temporário; as filas ficam em `$XDG_RUNTIME_DIR/rice-wallpaper-$HYPRLAND_INSTANCE_SIGNATURE/playlist-<tema>`.
 
 ### Monitores opcionais
 
 A sessão usa detecção automática. Para um arranjo específico, crie `~/.config/hypr/modules/monitors.local.lua`. O arquivo principal o carrega por último, se existir. O instalador o preserva, e a cópia equivalente no repositório está no `.gitignore`.
 
 O layout do teclado é lido do X11 configurado pelo `localectl`, quando disponível. Se apenas o mapa do console estiver configurado, confira o layout dentro do Hyprland. O módulo `input.lua` mantém o remapeamento do ThinkPad separado.
+
+### Caps Lock e Esc em todos os teclados
+
+O instalador configura o keyd para transformar Caps Lock em Esc e Esc na tecla de aspas.
+O remapeamento também vale fora do Hyprland. O layout ativo continua definindo o caractere
+ou a tecla morta que a tecla de aspas produz.
+
+Para aplicar numa máquina já instalada, instale o pacote e execute a partir da raiz do repo.
+
+```bash
+sudo pacman -Syu --needed keyd
+sudo bash system/keyd/apply.sh
+```
+
+Se você já usa outra configuração do keyd, adicione `capslock = esc` e `esc = apostrophe`
+na seção `[main]` do perfil de teclado desejado. Valide com `sudo keyd check` e recarregue
+com `sudo keyd reload`.
 
 ### Remapeamento opcional do ThinkPad
 

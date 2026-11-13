@@ -50,6 +50,7 @@ less
 desktop-file-utils
 shared-mime-info
 xfconf
+keyd
 bluez
 bluez-utils
 blueman

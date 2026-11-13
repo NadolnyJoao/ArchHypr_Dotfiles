@@ -51,20 +51,20 @@ bash "$wallpaper" next
 read -r current < "$runtime/current"
 cp "$current" "$temp/nord-first"
 [[ $(cat "$current") == nord-* ]]
-[[ $(tr -cd '\0' < "$runtime/queue-nord" | wc -c) == 2 ]]
-cp "$runtime/queue-nord" "$temp/nord-queue"
+[[ $(tr -cd '\0' < "$runtime/playlist-nord" | wc -c) == 5 ]]
+cp "$runtime/playlist-nord" "$temp/nord-queue"
 printf 'gruvbox\n' > "$XDG_CONFIG_HOME/hypr/current-theme"
 bash "$wallpaper" next
-cmp "$runtime/queue-nord" "$temp/nord-queue"
+cmp "$runtime/playlist-nord" "$temp/nord-queue"
 printf 'nord\n' > "$XDG_CONFIG_HOME/hypr/current-theme"
-mapfile -d '' -t expected < "$runtime/queue-nord"
+mapfile -d '' -t expected < "$runtime/playlist-nord"
 bash "$wallpaper" next
 read -r current < "$runtime/current"
-cmp "$current" "${expected[0]}"
+cmp "$current" "${expected[expected[0] + 3]}"
 ! cmp -s "$current" "$temp/nord-first"
-cp "$runtime/queue-nord" "$temp/before-failure"
+cp "$runtime/playlist-nord" "$temp/before-failure"
 if FAIL_WALLPAPER=1 bash "$wallpaper" next; then exit 1; fi
-cmp "$runtime/queue-nord" "$temp/before-failure"
+cmp "$runtime/playlist-nord" "$temp/before-failure"
 
 # A troca pelo Rofi aplica e avança a mesma fila (sem efeitos na sessão real).
 cat > "$temp/bin/rofi" <<'MOCK'
@@ -85,10 +85,10 @@ chmod +x "$temp/bin/rofi" "$temp/bin/pgrep"
 bash "$XDG_CONFIG_HOME/hypr/scripts/theme.sh" menu
 read -r current < "$runtime/current"
 [[ $(cat "$current") == catppuccin-* ]]
-mapfile -d '' -t expected < "$runtime/queue-catppuccin"
+mapfile -d '' -t expected < "$runtime/playlist-catppuccin"
 bash "$wallpaper" next
 read -r current < "$runtime/current"
-cmp "$current" "${expected[0]}"
+cmp "$current" "${expected[expected[0] + 3]}"
 
 # Pasta vazia ou ausente usa somente a raiz, inclusive ao invalidar uma fila antiga.
 rm -- "$pack/solitude/"*.jpg
@@ -114,9 +114,34 @@ exit 1
 MOCK
 chmod +x "$temp/bin/sleep"
 printf 'catppuccin\n' > "$XDG_CONFIG_HOME/hypr/current-theme"
-mapfile -d '' -t expected < "$runtime/queue-catppuccin"
+mapfile -d '' -t expected < "$runtime/playlist-catppuccin"
 env -u RICE_WALLPAPER_INTERVAL bash "$wallpaper" loop
 read -r current < "$runtime/current"
-cmp "$current" "${expected[0]}"
+cmp "$current" "${expected[expected[0] + 3]}"
 [[ $(cat "$temp/interval") == 3600 ]]
-[[ ! -s $runtime/queue-catppuccin ]]
+mapfile -d '' -t played < "$runtime/playlist-catppuccin"
+[[ ${played[0]} == 2 ]]
+
+
+# O menu usa índices, aceita nomes com vírgula e preserva a fila ao cancelar.
+cat > "$temp/bin/rofi" <<'MOCK'
+#!/usr/bin/env bash
+cat > "$TEST_DIR/menu"
+[[ ${CANCEL_MENU:-0} == 0 ]] || exit 1
+printf '%s\n' "${PICK_INDEX:-0}"
+MOCK
+mapfile -d '' -t menu_images < <(find "$pack" -type f -print0 | sort -z)
+target="$pack/teste, cenário.png"
+for index in "${!menu_images[@]}"; do
+    if [[ ${menu_images[index]} == "$target" ]]; then break; fi
+done
+cp "$runtime/playlist-catppuccin" "$temp/before-cancel"
+CANCEL_MENU=1 bash "$wallpaper" menu
+cmp "$temp/before-cancel" "$runtime/playlist-catppuccin"
+PICK_INDEX=$index bash "$wallpaper" menu
+grep -azq 'icon' "$temp/menu"
+cmp "$(cat "$runtime/current")" "$target"
+bash "$wallpaper" prev
+cmp "$(cat "$runtime/current")" "${expected[expected[0] + 3]}"
+bash "$wallpaper" next
+cmp "$(cat "$runtime/current")" "$target"

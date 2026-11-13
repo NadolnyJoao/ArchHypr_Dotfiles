@@ -22,7 +22,12 @@ for relative in ("lib/sddm.sh", "lib/check-sddm.py"):
     for path in ("/usr/share/sddm", "/usr/share/fonts", "/usr/lib/sddm", "/etc/sddm"):
         text = text.replace(path, str(root / "system") + path)
     p.write_text(text)
-for name in ("sudo", "pacman", "vercmp", "git", "systemctl", "gsettings", "xdg-settings",
+keyd_entry = root / "project/system/keyd/apply.sh"
+keyd_text = keyd_entry.read_text().replace("/etc/keyd", str(root / "system/etc/keyd"))
+if __import__("os").geteuid() != 0:
+    keyd_text = keyd_text.replace("if (( EUID != 0 )); then", "if false; then")
+keyd_entry.write_text(keyd_text)
+for name in ("keyd", "sudo", "pacman", "vercmp", "git", "systemctl", "gsettings", "xdg-settings",
              "xdg-mime", "xfconf-query", "flatpak", "update-desktop-database"):
     (root / "bin" / name).symlink_to(root / "project/tests/mocks/command.py")
 PY
@@ -49,9 +54,10 @@ run_installer 2 ''
 report=$(find "$temp/home/.local/state" -name resumo.tsv -print -quit)
 ! grep -q '^FALHOU' "$report"
 for step in hyprland-config desktop-config nordic-tema neovim-associacoes \
-    thunar-miniaturas gtk-preferencias portais-config audio-servicos sddm-servico; do
+    thunar-miniaturas gtk-preferencias portais-config audio-servicos sddm-servico keyd-servico; do
     grep -Eq "^(OK|JA_PRONTO)[[:space:]]+$step[[:space:]]" "$report"
 done
+cmp system/keyd/default.conf "$temp/system/etc/keyd/default.conf"
 [[ -f $temp/home/.config/fish/conf.d/rice-arch.fish ]]
 [[ -f $temp/home/.local/share/themes/Nordic/gtk-3.0/gtk.css ]]
 [[ -f $temp/home/.local/share/applications/rice-arch-neovim.desktop ]]
