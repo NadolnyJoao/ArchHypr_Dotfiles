@@ -12,15 +12,30 @@ list_images() {
     \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -print0
 }
 
+active_theme() {
+  local theme=nord
+  if [[ -f $config/current-theme ]]; then
+    read -r theme <"$config/current-theme" || theme=nord
+  fi
+  case $theme in nord|gruvbox|catppuccin|solitude) ;; *) theme=nord ;; esac
+  printf '%s\n' "$theme"
+}
+
 choose_wallpaper() {
-  local image label selected
+  local image label selected theme source
   local -a choices=()
-  [[ -d $pack ]] || return 1
-  mapfile -d '' -t choices < <(list_images "$pack" | sort -z)
-  (("${#choices[@]}")) || return 1
+  theme=$(active_theme)
+  source="$pack/$theme"
+  if [[ -d $source ]]; then
+    mapfile -d '' -t choices < <(list_images "$source" -maxdepth 1 | sort -z)
+  fi
+  if ((${#choices[@]} == 0)); then
+    rofi -e "Nenhum wallpaper na pasta do tema $theme."
+    return
+  fi
   if ! selected=$(
     for image in "${choices[@]}"; do
-      label=${image#"$pack/"}
+      label=${image##*/}
       label=${label//[[:cntrl:]]/ }
       if [[ $image == *$'\n'* || $image == *$'\x1f'* ]]; then
         printf '%s\n' "$label"
@@ -39,7 +54,7 @@ choose_wallpaper() {
 rotate() (
   local operation=${1:-next} selection=${2:-}
   local image previous='' candidate reply active attempt theme=nord source queue
-  local cursor=-1 current_image='' index previous_source
+  local cursor=-1 current_image='' index
   local -a images=() ordered=() saved=()
   local -A seen=()
   # Preserve a ordem dos bloqueios usada pela troca de tema.
@@ -47,10 +62,7 @@ rotate() (
   flock -s 7 || return 1
   exec 8>"$runtime/update.lock"
   flock 8 || return 1
-  if [[ -f $config/current-theme ]]; then
-    read -r theme <"$config/current-theme" || theme=nord
-  fi
-  case $theme in nord|gruvbox|catppuccin|solitude) ;; *) theme=nord ;; esac
+  theme=$(active_theme)
   [[ -d $pack ]] || { printf 'Pasta de wallpapers ausente: %s\n' "$pack" >&2; return 1; }
   source="$pack/$theme"
   if [[ -d $source ]]; then
@@ -67,14 +79,10 @@ rotate() (
   if [[ -s $queue ]]; then
     mapfile -d '' -t saved <"$queue"
     index=${saved[0]}
-    previous_source=${saved[1]}
     current_image=${saved[index + 2]}
     for image in "${saved[@]:2}"; do
       [[ -f $image ]] || continue
-      # Se o tema ganhou uma pasta própria, deixe para trás o fallback da raiz.
-      if [[ $previous_source == "$pack" && $source != "$pack" && ${image%/*} == "$pack" ]]; then
-        continue
-      fi
+      [[ ${image%/*} == "$source" ]] || continue
       seen[$image]=1
       if [[ $image == "$current_image" ]]; then cursor=${#ordered[@]}; fi
       ordered+=("$image")
@@ -87,19 +95,14 @@ rotate() (
     fi
   done
   if [[ $operation == select ]]; then
-    [[ $selection == "$pack/"* && -f $selection ]] || return 1
-    if [[ ${seen[$selection]:-} ]]; then
-      for index in "${!ordered[@]}"; do
-        if [[ ${ordered[index]} == "$selection" ]]; then
-          cursor=$index
-          break
-        fi
-      done
-    else
-      # Uma escolha de outra pasta entra após a posição atual da fila.
-      cursor=$((cursor + 1))
-      ordered=("${ordered[@]:0:cursor}" "$selection" "${ordered[@]:cursor}")
-    fi
+    # Revalide a seleção caso o tema tenha mudado enquanto o Rofi estava aberto.
+    [[ ${selection%/*} == "$pack/$theme" && ${seen[$selection]:-} ]] || return 1
+    for index in "${!ordered[@]}"; do
+      if [[ ${ordered[index]} == "$selection" ]]; then
+        cursor=$index
+        break
+      fi
+    done
   elif ((${#ordered[@]} == 0)); then
     printf 'Nenhuma imagem encontrada.\n' >&2
     return 1

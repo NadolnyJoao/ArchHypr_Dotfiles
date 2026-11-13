@@ -126,12 +126,14 @@ mapfile -d '' -t played < "$runtime/playlist-catppuccin"
 # O menu usa índices, aceita nomes com vírgula e preserva a fila ao cancelar.
 cat > "$temp/bin/rofi" <<'MOCK'
 #!/usr/bin/env bash
+if [[ $1 == -e ]]; then printf '%s\n' "$2" > "$TEST_DIR/empty-menu"; exit 0; fi
 cat > "$TEST_DIR/menu"
 [[ ${CANCEL_MENU:-0} == 0 ]] || exit 1
 printf '%s\n' "${PICK_INDEX:-0}"
 MOCK
-mapfile -d '' -t menu_images < <(find "$pack" -type f -print0 | sort -z)
-target="$pack/teste, cenário.png"
+target="$pack/catppuccin/teste, cenário.png"
+printf 'seleção do tema\n' > "$target"
+mapfile -d '' -t menu_images < <(find "$pack/catppuccin" -type f -print0 | sort -z)
 for index in "${!menu_images[@]}"; do
     if [[ ${menu_images[index]} == "$target" ]]; then break; fi
 done
@@ -140,8 +142,14 @@ CANCEL_MENU=1 bash "$wallpaper" menu
 cmp "$temp/before-cancel" "$runtime/playlist-catppuccin"
 PICK_INDEX=$index bash "$wallpaper" menu
 grep -azq 'icon' "$temp/menu"
+if grep -aqE '/(nord|solitude|fora)/|wallpapers/teste' "$temp/menu"; then exit 1; fi
 cmp "$(cat "$runtime/current")" "$target"
 bash "$wallpaper" prev
 cmp "$(cat "$runtime/current")" "${expected[expected[0] + 3]}"
 bash "$wallpaper" next
+cmp "$(cat "$runtime/current")" "$target"
+
+printf 'gruvbox\n' > "$XDG_CONFIG_HOME/hypr/current-theme"
+bash "$wallpaper" menu
+grep -Fq 'Nenhum wallpaper na pasta do tema gruvbox.' "$temp/empty-menu"
 cmp "$(cat "$runtime/current")" "$target"

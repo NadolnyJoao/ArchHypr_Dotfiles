@@ -129,7 +129,7 @@ Organize as imagens assim; os nomes das pastas devem estar em minúsculas:
 └── solitude/
 ```
 
-A fila de cada tema começa embaralhada com as imagens da sua pasta (`png`, `jpg`, `jpeg` e `webp`). Se a pasta estiver vazia ou ausente, a fila usa as imagens diretamente na raiz de `wallpapers/`. O menu de wallpapers lista o pack inteiro. Escolher uma imagem que já está na fila move a posição até ela. Uma imagem de outra pasta entra logo após a posição atual. Os atalhos de avançar e voltar percorrem essa ordem e dão a volta ao chegar às pontas. A rotação de uma hora também avança nessa fila. Cada tema mantém sua própria posição durante a sessão.
+A fila de cada tema começa embaralhada com as imagens da sua pasta (`png`, `jpg`, `jpeg` e `webp`). Se a pasta estiver vazia ou ausente, a fila usa as imagens diretamente na raiz de `wallpapers/`. O menu de wallpapers lista apenas as imagens da pasta do tema atual e avisa quando ela está vazia ou ausente. A imagem escolhida passa a ser a posição atual da fila. Os atalhos de avançar e voltar percorrem essa ordem e dão a volta ao chegar às pontas. A rotação de uma hora também avança nessa fila. Cada tema mantém sua própria posição durante a sessão.
 
 Alterar o repositório não atualiza os scripts já instalados em `~/.config/hypr/scripts/`. Para atualizar apenas esta integração, execute a partir do repositório, em Bash:
 
