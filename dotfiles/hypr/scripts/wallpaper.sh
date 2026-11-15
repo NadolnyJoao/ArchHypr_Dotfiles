@@ -3,6 +3,7 @@ set -euo pipefail
 config=${XDG_CONFIG_HOME:-$HOME/.config}/hypr
 pack=${XDG_DATA_HOME:-$HOME/.local/share}/rice-arch/Wallpapers_Pack/wallpapers
 runtime=${XDG_RUNTIME_DIR:?}/rice-wallpaper-${HYPRLAND_INSTANCE_SIGNATURE:?}
+disabled="$runtime/disabled"
 interval=${RICE_WALLPAPER_INTERVAL:-3600}
 [[ $interval =~ ^[1-9][0-9]*$ ]] || exit 2
 mkdir -p -m 700 -- "$runtime"
@@ -24,6 +25,10 @@ active_theme() {
 choose_wallpaper() {
   local image label selected theme source
   local -a choices=()
+  if [[ -f $disabled ]]; then
+    rofi -e 'Wallpapers desativados. Use wallpaper.sh --enable para voltar.'
+    return
+  fi
   theme=$(active_theme)
   source="$pack/$theme"
   if [[ -d $source ]]; then
@@ -51,9 +56,38 @@ choose_wallpaper() {
   rotate select "${choices[selected]}"
 }
 
+apply_image() (
+  local image=$1 previous='' candidate reply active attempt
+  if [[ -f $runtime/current ]]; then read -r previous <"$runtime/current"; fi
+  candidate=$(mktemp --suffix=".${image##*.}" "$runtime/image.XXXXXXXX") || return 1
+  trap 'rm -f -- "$candidate" "$runtime/next"' EXIT
+  cp -- "$image" "$candidate" || return 1
+  # O protocolo usa vírgulas. Envie o caminho temporário em vez do nome do repo.
+  reply=$(hyprctl hyprpaper wallpaper ",$candidate,cover") || return 1
+  # Algumas versões respondem sem texto mesmo após aplicar a imagem.
+  if [[ $reply != ok ]]; then
+    for attempt in {1..10}; do
+      active=$(hyprctl hyprpaper listactive) || return 1
+      if cut -d ' ' -f2- <<<"$active" | grep -Fx -- "$candidate" >/dev/null; then
+        break
+      fi
+      sleep 0.1
+    done
+    if ! cut -d ' ' -f2- <<<"$active" | grep -Fx -- "$candidate" >/dev/null; then
+      printf 'Hyprpaper não confirmou a troca: %s\n' "$reply" >&2
+      return 1
+    fi
+  fi
+  # A imagem já está em uso. Preserve-a mesmo se uma escrita de estado falhar.
+  trap - EXIT
+  printf '%s\n' "$candidate" >"$runtime/next" || return 1
+  mv -fT -- "$runtime/next" "$runtime/current" || return 1
+  if [[ $previous == "$runtime"/image.* ]]; then rm -f -- "$previous"; fi
+)
+
 rotate() (
   local operation=${1:-next} selection=${2:-}
-  local image previous='' candidate reply active attempt theme=nord source queue
+  local image theme source queue
   local cursor=-1 current_image='' index
   local -a images=() ordered=() saved=()
   local -A seen=()
@@ -62,6 +96,20 @@ rotate() (
   flock -s 7 || return 1
   exec 8>"$runtime/update.lock"
   flock 8 || return 1
+
+  if [[ $operation == disable ]]; then
+    # PNG preto de 1 × 1, ampliado pelo Hyprpaper.
+    printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYGAAAAAEAAH2FzhVAAAAAElFTkSuQmCC' |
+      base64 -d > "$runtime/black.png" || return 1
+    apply_image "$runtime/black.png" || return 1
+    touch -- "$disabled"
+    return
+  fi
+  if [[ $operation == enable ]]; then
+    [[ -f $disabled ]] || return 0
+  elif [[ -f $disabled ]]; then
+    return 0
+  fi
   theme=$(active_theme)
   [[ -d $pack ]] || { printf 'Pasta de wallpapers ausente: %s\n' "$pack" >&2; return 1; }
   source="$pack/$theme"
@@ -72,8 +120,6 @@ rotate() (
     source=$pack
     mapfile -d '' -t images < <(list_images "$source" -maxdepth 1 | shuf -z)
   fi
-  if [[ -f $runtime/current ]]; then read -r previous <"$runtime/current"; fi
-
   # Guarde a posição, a pasta padrão do tema e a ordem da sessão.
   queue="$runtime/playlist-$theme"
   if [[ -s $queue ]]; then
@@ -109,42 +155,22 @@ rotate() (
   elif [[ $operation == prev ]]; then
     if ((cursor < 0)); then cursor=0; fi
     cursor=$(((cursor + ${#ordered[@]} - 1) % ${#ordered[@]}))
-  else
+  elif [[ $operation != enable || $cursor == -1 ]]; then
     cursor=$(((cursor + 1) % ${#ordered[@]}))
   fi
   image=${ordered[cursor]}
-  candidate=$(mktemp --suffix=".${image##*.}" "$runtime/image.XXXXXXXX") || return 1
-  trap 'rm -f -- "$candidate" "$runtime/next"' EXIT
-  cp -- "$image" "$candidate" || return 1
-  # O protocolo usa vírgulas. Envie o caminho temporário em vez do nome do repo.
-  reply=$(hyprctl hyprpaper wallpaper ",$candidate,cover") || return 1
-  # Algumas versões respondem sem texto mesmo após aplicar a imagem.
-  if [[ $reply != ok ]]; then
-    for attempt in {1..10}; do
-      active=$(hyprctl hyprpaper listactive) || return 1
-      if cut -d ' ' -f2- <<<"$active" | grep -Fx -- "$candidate" >/dev/null; then
-        break
-      fi
-      sleep 0.1
-    done
-    if ! cut -d ' ' -f2- <<<"$active" | grep -Fx -- "$candidate" >/dev/null; then
-      printf 'Hyprpaper não confirmou a troca: %s\n' "$reply" >&2
-      return 1
-    fi
-  fi
-  # A imagem já está em uso. Preserve-a mesmo se uma escrita de estado falhar.
-  trap - EXIT
-  printf '%s\n' "$candidate" >"$runtime/next" || return 1
-  mv -fT -- "$runtime/next" "$runtime/current" || return 1
+  apply_image "$image" || return 1
   # Atualize a posição somente depois que o Hyprpaper confirmar a imagem.
   printf '%s\0' "$cursor" "$source" "${ordered[@]}" >"$runtime/playlist.next" || return 1
   mv -fT -- "$runtime/playlist.next" "$queue" || return 1
-  if [[ $previous == "$runtime"/image.* ]]; then rm -f -- "$previous"; fi
+  if [[ $operation == enable ]]; then rm -f -- "$disabled"; fi
 )
 
 case "${1:-}" in
 once | next) rotate ;;
 prev) rotate prev ;;
+--disable) rotate disable ;;
+--enable) rotate enable ;;
 menu) choose_wallpaper ;;
 loop)
   exec 9>"$runtime/rotation.lock"
@@ -159,5 +185,5 @@ loop)
     rotate || printf 'Falha ao aplicar wallpaper; será tentado novamente.\n' >&2
   done
   ;;
-*) exit 2 ;;
+*) printf 'Uso: %s {--enable|--disable|menu|next|prev|once|loop}\n' "$0" >&2; exit 2 ;;
 esac
