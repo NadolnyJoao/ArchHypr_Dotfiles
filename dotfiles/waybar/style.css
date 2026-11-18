@@ -10,16 +10,16 @@
 }
 
 window#waybar {
-    background: transparent;
+    background: @base;
     color: @text;
 }
 
 .modules-left,
 .modules-center,
 .modules-right {
-    background: alpha(@base, 0.83);
-    border: 1px solid @outline;
-    border-radius: 12px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
     margin: 3px 6px;
     padding: 2px 5px;
 }
@@ -40,14 +40,15 @@ window#waybar {
 }
 
 #workspaces button.active {
-    background: @accent;
-    color: @base;
+    background: transparent;
+    color: @accent;
     font-weight: bold;
 }
 
 #clock {
     color: @accent;
-    font-weight: bold;
+    font-size: 16px;
+    font-weight: 800;
     padding: 0 9px;
 }
 

@@ -12,7 +12,7 @@
   },
   "pulseaudio": {
     "format": "  {volume}%",
-    "format-muted": "mudo",
+    "format-muted": " 0%",
     "on-click": "pavucontrol",
     "on-scroll-up": "swayosd-client --output-volume raise --max-volume 100 || wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
     "on-scroll-down": "swayosd-client --output-volume lower || wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"

@@ -35,8 +35,8 @@ hl.window_rule({
 })
 hl.config({
 	general = {
-		gaps_in = 6, -- Espaço entre janelas lado a lado.
-		gaps_out = 12, -- Espaço entre as janelas e a borda da tela.
+		gaps_in = 1, -- Espaço entre janelas lado a lado.
+		gaps_out = 1, -- Espaço entre as janelas e a borda da tela.
 	},
 })
 -- Transparência e desfoque das janelas da sessão.
@@ -75,4 +75,12 @@ hl.window_rule({
 	center = true,
 	size = { "monitor_w*0.70", "monitor_h*0.65" },
 	suppress_event = "maximize",
+})
+-- Fundo preto do próprio Hyprland.
+hl.config({
+	misc = {
+		disable_hyprland_logo = true,
+		disable_splash_rendering = true,
+		background_color = "rgb(000000)",
+	},
 })
