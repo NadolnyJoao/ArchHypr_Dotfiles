@@ -4,6 +4,9 @@ set -euo pipefail
 case "${1:-}" in nord|gruvbox|catppuccin|solitude) theme=$1 ;; *) exit 2 ;; esac
 config=${XDG_CONFIG_HOME:-$HOME/.config}
 data=${XDG_DATA_HOME:-$HOME/.local/share}
+# Tema Qt/KDE sincronizado pelo configurar-ark.py.
+python3 "${XDG_DATA_HOME:-$HOME/.local/share}/rice-ark/configurar-ark.py" --apply "$theme"
+
 
 # Prefira um tema GTK3 completo, quando instalado para a paleta ativa.
 ready_theme=''

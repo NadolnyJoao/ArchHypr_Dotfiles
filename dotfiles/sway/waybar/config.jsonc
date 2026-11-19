@@ -24,25 +24,25 @@
   },
   "pulseaudio": {
     "format": "  {volume}%",
-    "format-muted": "mudo",
+    "format-muted": " 0%",
     "on-click": "pavucontrol",
     "on-scroll-up": "swayosd-client --output-volume raise --max-volume 100 || wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
     "on-scroll-down": "swayosd-client --output-volume lower || wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
   },
   "network": {
-    "format-wifi": "  {essid}",
+    "format-wifi": "   {essid}",
     "format-ethernet": "󰈀",
     "format-disconnected": "sem rede",
-    "on-click": "systemctl is-active --quiet NetworkManager && nm-connection-editor"
+    "on-click": "kitty --title 'Redes Wi-Fi' -e nmtui-connect"
   },
   "bluetooth": {
-    "format": "",
+    "format": "  ",
     "format-no-controller": "",
-    "tooltip-format": "Bluetooth",
-    "tooltip-format-off": "Bluetooth desligado",
-    "tooltip-format-disabled": "Bluetooth desativado",
-    "tooltip-format-on": "Bluetooth ligado",
-    "tooltip-format-connected": "Dispositivos conectados\n{device_enumerate}",
+    "tooltip-format": " Bluetooth",
+    "tooltip-format-off": " Bluetooth desligado",
+    "tooltip-format-disabled": " Bluetooth desativado",
+    "tooltip-format-on": " Bluetooth ligado",
+    "tooltip-format-connected": " Dispositivos conectados\n{device_enumerate}",
     "tooltip-format-enumerate-connected": "{device_alias}",
     "on-click": "blueman-manager"
   },
@@ -55,6 +55,12 @@
       "",
       "",
       ""
+    ]
+  },
+  "tray": {
+    "ignore-list": [
+      "nm-applet",
+      "blueman"
     ]
   },
   "custom/notifications": {

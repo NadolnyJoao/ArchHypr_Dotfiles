@@ -84,3 +84,13 @@ hl.config({
 		background_color = "rgb(000000)",
 	},
 })
+
+-- Ark abre como os demais gerenciadores.
+hl.window_rule({
+    name = "rice-ark-floating",
+    match = { class = "^(org[.]kde[.]ark|ark)$" },
+    float = true,
+    center = true,
+    size = { "monitor_w*0.70", "monitor_h*0.65" },
+    suppress_event = "maximize",
+})
