@@ -27,6 +27,12 @@ keyd_text = keyd_entry.read_text().replace("/etc/keyd", str(root / "system/etc/k
 if __import__("os").geteuid() != 0:
     keyd_text = keyd_text.replace("if (( EUID != 0 )); then", "if false; then")
 keyd_entry.write_text(keyd_text)
+ark_entry = root / "project/tools/configurar-ark.py"
+ark_text = ark_entry.read_text().replace("/usr/share/applications/org.kde.ark.desktop", str(root / "ark.desktop"))
+if __import__("os").geteuid() == 0:
+    ark_text = ark_text.replace("if os.geteuid() == 0:", "if False:")
+ark_entry.write_text(ark_text)
+(root / "ark.desktop").write_text("[Desktop Entry]\nName=Ark\nExec=ark %U\nType=Application\n")
 for name in ("keyd", "sudo", "pacman", "vercmp", "git", "systemctl", "gsettings", "xdg-settings",
              "xdg-mime", "xfconf-query", "flatpak", "update-desktop-database"):
     (root / "bin" / name).symlink_to(root / "project/tests/mocks/command.py")
@@ -54,7 +60,7 @@ run_installer 2 ''
 report=$(find "$temp/home/.local/state" -name resumo.tsv -print -quit)
 ! grep -q '^FALHOU' "$report"
 for step in hyprland-config desktop-config nordic-tema neovim-associacoes \
-    thunar-miniaturas gtk-preferencias portais-config audio-servicos sddm-servico keyd-servico; do
+    thunar-miniaturas gtk-preferencias portais-config audio-servicos sddm-servico keyd-servico ark-config; do
     grep -Eq "^(OK|JA_PRONTO)[[:space:]]+$step[[:space:]]" "$report"
 done
 cmp system/keyd/default.conf "$temp/system/etc/keyd/default.conf"

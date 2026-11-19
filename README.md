@@ -279,3 +279,51 @@ Os testes precisam de Bash, Git, Python, Lua e utilitários básicos. Se faltar 
 | `tests/` | Regressões e instalação simulada |
 
 Após alterar os arquivos, rode os testes, revise `git diff` e faça o commit. Confirme na sessão real o recurso alterado antes de reproduzir a instalação em outra máquina.
+
+## Sincronizar Hyprland, Sway e Ark entre máquinas
+
+No computador com as alterações, execute a prévia e publique por SSH.
+
+```fish
+cd ~/ArchHypr_Dotfiles
+bash publicar-dotfiles.sh
+bash publicar-dotfiles.sh --publish
+```
+
+O publicador coleta as configurações do Hyprland e do Sway presentes na máquina,
+incluindo Waybar, Rofi, Kitty, scripts, paletas e regras flutuantes.
+Também coleta margens, fontes e bordas reconhecidas de sway/local.conf para
+sway/config.d/preferences.conf. Teclado e monitores locais são preservados.
+Arquivos temporários do Neovim, históricos do Ark e filas de wallpapers ficam fora da coleta.
+O helper tools/configurar-ark.py recria o desktop do Ark, Qt e KDE na máquina de destino.
+
+Na outra máquina, baixe a main e aplique.
+
+```fish
+cd ~/ArchHypr_Dotfiles
+bash atualizar-dotfiles.sh
+bash atualizar-dotfiles.sh --apply
+```
+
+A detecção automática atualiza as sessões que já têm arquivos de configuração.
+Para instalar o Sway pela primeira vez na outra máquina, use:
+
+```fish
+bash atualizar-dotfiles.sh --desktop sway --apply
+```
+
+Esse comando instala os pacotes do Sway e do Ark e configura a sessão.
+Para aplicar a configuração do clone atual, antes de publicar, use
+`bash atualizar-dotfiles.sh --local --apply`.
+Os arquivos são montados numa pasta temporária. Com Sway selecionado,
+o instalador executa sway --validate antes de publicar a configuração.
+Os arquivos substituídos e as configurações Qt/KDE ficam em
+~/.local/state/rice-arch/atualizacao-XXXXXX.
+
+O helper do Ark gera as cores com base no tema escolhido na máquina.
+Os aplicativos Qt/KDE do usuário podem refletir as mesmas cores.
+Reabra o Ark após atualizar. Reinicie a sessão para carregar scripts que já
+estavam executando em segundo plano.
+
+O script antigo em Downloads contém a implementação anterior. Para usar estes
+recursos, execute os scripts da raiz do clone ou copie as versões novas para Downloads.

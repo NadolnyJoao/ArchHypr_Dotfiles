@@ -54,3 +54,5 @@ keyd
 bluez
 bluez-utils
 blueman
+ark
+qt6ct

@@ -100,7 +100,10 @@ elif name == "systemctl":
 elif name in ("gsettings", "xdg-settings", "xdg-mime", "xfconf-query", "flatpak"):
     values = load()
     if name == "gsettings":
-        values[args[1] + "/" + args[2]] = args[3]
+        if args[0] == "get":
+            print(repr(values.get(args[1] + "/" + args[2], "Papirus-Dark")))
+        else:
+            values[args[1] + "/" + args[2]] = args[3]
     elif name == "xdg-settings":
         if args[0] == "get":
             print(values.get(args[1], ""))

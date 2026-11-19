@@ -1,0 +1,10 @@
+# Configuração principal. As preferências da máquina ficam em local.conf.
+set $mod Mod4
+set $root @SWAY_ROOT@
+include config.d/colors.conf
+include config.d/appearance.conf
+include config.d/input.conf
+include config.d/bindings.conf
+include config.d/session.conf
+include config.d/preferences.conf
+include local.conf

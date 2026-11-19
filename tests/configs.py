@@ -97,7 +97,8 @@ end
 waybar = json.loads((root / "dotfiles/waybar/config.jsonc").read_text())
 power = waybar["custom/power"]["on-click"]
 assert '\\"' not in power
-assert "NetworkManager" in waybar["network"]["on-click"]
+assert waybar["network"]["on-click"].strip()
+subprocess.run(["bash", "-n", "-c", waybar["network"]["on-click"]], check=True)
 assert waybar["clock"]["format"] == "{:%H:%M}"
 subprocess.run(["bash", "-n", "-c", power], check=True)
 assert "next" in (root / "dotfiles/hypr/modules/bindings.lua").read_text()

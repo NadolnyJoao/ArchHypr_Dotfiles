@@ -1,0 +1,85 @@
+@import url("colors.css");
+
+@define-color surface mix(@base, @text, 0.08);
+@define-color outline mix(@base, @text, 0.18);
+
+* {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 12px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: transparent;
+    color: @text;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+    background: alpha(@base, 0.83);
+    border: 1px solid @outline;
+    border-radius: 12px;
+    margin: 3px 6px;
+    padding: 2px 5px;
+}
+
+#workspaces button {
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    box-shadow: none;
+    color: @text;
+    min-width: 16px;
+    padding: 0 6px;
+    text-shadow: none;
+}
+
+#workspaces button:hover {
+    background: @surface;
+}
+
+#workspaces button.focused {
+    background: @accent;
+    color: @base;
+    font-weight: bold;
+}
+
+#clock {
+    color: @accent;
+    font-weight: bold;
+    padding: 0 9px;
+}
+
+#pulseaudio,
+#network,
+#bluetooth,
+#battery,
+#tray,
+#custom-notifications,
+#custom-power {
+    padding: 0 7px;
+}
+
+#pulseaudio.muted,
+#network.disconnected,
+#bluetooth.off,
+#bluetooth.disabled {
+    color: mix(@text, @base, 0.35);
+}
+
+#bluetooth.connected,
+#custom-notifications,
+#custom-power {
+    color: @accent;
+}
+
+tooltip {
+    background: alpha(@base, 0.83);
+    border: 1px solid @outline;
+    border-radius: 8px;
+}
+
+tooltip label {
+    color: @text;
+}

@@ -10,6 +10,7 @@ source "$project_dir/lib/wallpapers.sh"
 source "$project_dir/lib/sddm.sh"
 source "$project_dir/lib/finish.sh"
 source "$project_dir/lib/integration.sh"
+source "$project_dir/lib/extras.sh"
 
 config_dir=${XDG_CONFIG_HOME:-$HOME/.config}
 state_dir=${XDG_STATE_HOME:-$HOME/.local/state}/rice-arch
@@ -108,6 +109,7 @@ run_step audio-servicos 'pacote-pipewire pacote-pipewire-pulse pacote-wireplumbe
     systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
 run_step gtk-preferencias 'desktop-config pacote-gsettings-desktop-schemas pacote-papirus-icon-theme' activate_desktop_theme
 run_step firefox-padrao 'pacote-firefox pacote-xdg-utils' set_default_firefox
+run_step ark-config 'desktop-config pacote-ark pacote-qt6ct pacote-python pacote-desktop-file-utils' install_ark_config
 finish_interactive
 
 if (( failed_steps > 0 )); then
